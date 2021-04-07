@@ -1,0 +1,58 @@
+<!-- <div class="sidebar-wrapper">
+	<aside class="bg-light border-right" [ngClass]="{'expanding': isExpanding}">
+    <div class="list-group list-group-flush">
+      <a [routerLink]="['/patients']" class="list-group-item list-group-item-action bg-light">Pacientes</a>
+      <a [routerLink]="['/professionals']" class="list-group-item list-group-item-action bg-light">Profissionais</a>
+    </div>
+  </aside>
+	<div class="container-fluid">
+		<button (click)="toggleSideBar()">
+     Toggle Side Menu
+    </button>
+	</div>
+</div> -->
+<div class="d-flex wrapper wrapper-navbar-used wrapper-navbar-fixed">
+  <nav role="navigation" class="sidebar sidebar-bg-light" id="navigation">
+    <!-- sidebar navigation -->
+    <div class="sidebar-menu">
+      <div class="sidebar-menu-fixed">
+
+        <nav class="sidebar-nav">
+          <ul>
+            <li routerLinkActive="active">
+              <button icon="pi pi-calendar" class="p-button-text" pButton type="button" label="Agenda" [routerLink]="['/schedule']" (click)="toggleSideBar()"></button>
+            </li>
+            <li routerLinkActive="active">
+              <button icon="pi pi-users" class="p-button-text" pButton type="button" label="Pacientes" [routerLink]="['/patients']" (click)="toggleSideBar()"></button>
+            </li>
+            <li routerLinkActive="active">
+              <button icon="pi pi-sitemap" class="p-button-text" pButton type="button" label="Profissionais" [routerLink]="['/professionals']" (click)="toggleSideBar()"></button>
+            </li>
+            <li routerLinkActive="active" *ngIf="admin">
+              <button icon="pi pi-directions" class="p-button-text" pButton type="button" label="Cargos" [routerLink]="['/occupations']" (click)="toggleSideBar()"></button>
+            </li>
+            <li routerLinkActive="active" *ngIf="admin">
+              <button icon="pi pi-sitemap" class="p-button-text" pButton type="button" label="Convênios" [routerLink]="['/health-insurances']" (click)="toggleSideBar()"></button>
+            </li>
+            <li routerLinkActive="active" *ngIf="admin">
+              <button icon="pi pi-briefcase" class="p-button-text" pButton type="button" label="Procedimentos" [routerLink]="['/procedures']" (click)="toggleSideBar()"></button>
+            </li>
+            <li routerLinkActive="active" *ngIf="admin">
+              <button icon="pi pi-book" class="p-button-text" pButton type="button" label="Relatórios" [routerLink]="['/reports']" (click)="toggleSideBar()"></button>
+            </li>
+            
+          </ul>
+        </nav>
+
+      </div>
+    </div>
+  </nav>
+  <div class="container-fluid">
+    <!-- content -->
+    <main role="main">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+<!-- <router-outlet></router-outlet> -->

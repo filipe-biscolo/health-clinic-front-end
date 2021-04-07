@@ -1,0 +1,142 @@
+<div class="row">
+  <div class="col-md-12 p-0 mb-3">
+    <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12 p-0">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="row pt-2">
+            <div class="col-md-6">
+              <h4>{{ titlePage }} - {{ scheduling?.procedure.name }}</h4>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="row">
+          <div class="col-md-12">
+            <h5 class="mb-0">{{ scheduling?.patient.person.name }}</h5>
+            <small
+              >{{ scheduling?.patient.person.birth_date | personAge }},
+              {{ scheduling?.patient.person.sex | personSex }},
+              {{
+                scheduling?.patient.person.marital_status | personMaritalStatus
+              }}, Convênio:
+              {{
+                scheduling?.health_insurance?.name
+                  ? scheduling.health_insurance.name
+                  : "Sem convênio"
+              }}</small
+            >
+          </div>
+        </div>
+
+        <div class="p-fluid row mt-3">
+          <div class="col-12 col-md-4">
+            <label for="weight">Peso</label>
+            <input
+              id="weight"
+              type="number"
+              formControlName="weight"
+              pInputText
+            />
+          </div>
+          <div class="col-12 col-md-4">
+            <label for="blood_pressure">Pressão arterial</label>
+            <input
+              id="blood_pressure"
+              type="text"
+              formControlName="blood_pressure"
+              pInputText
+            />
+          </div>
+          <div class="col-12 col-md-4">
+            <label for="blood_type">Tipo sanguíneo</label>
+            <p-dropdown
+              inputId="blood_type"
+              placeholder="Selecionar..."
+              optionLabel="label"
+              [options]="blood_types"
+              optionValue="id"
+              formControlName="blood_type"
+            ></p-dropdown>
+          </div>
+        </div>
+
+        <div class="p-fluid row mt-3">
+          <div class="col-12 col-md-4">
+            <label for="allergies">Alergias</label>
+            <textarea
+              id="allergies"
+              type="text"
+              rows="2"
+              formControlName="allergies"
+              pInputTextarea
+            ></textarea>
+          </div>
+          <div class="col-12 col-md-4">
+            <label for="chronic_diseases">Doenças crônicas</label>
+            <textarea
+              id="chronic_diseases"
+              type="text"
+              rows="2"
+              formControlName="chronic_diseases"
+              pInputTextarea
+            ></textarea>
+          </div>
+          <div class="col-12 col-md-4">
+            <label for="note">Observações</label>
+            <textarea
+              id="note"
+              type="text"
+              rows="2"
+              formControlName="note"
+              pInputTextarea
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="p-fluid row mt-3">
+          <div class="col-12 col-md-12">
+            <label for="prescription">Prescrição</label>
+            <textarea
+              id="prescription"
+              type="text"
+              rows="4"
+              formControlName="prescription"
+              [ngClass]="applyInputError('prescription')"
+              pInputTextarea
+            ></textarea>
+            <app-error-message
+              [control]="form.get('prescription')"
+              label="Prescrição"
+            ></app-error-message>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12 col-md-12 m-0 text-right">
+            <button
+              pButton
+              type="submit"
+              label="Finalizar"
+              icon="pi pi-check"
+              class="p-button-success mr-2"
+            ></button>
+            <button
+              pButton
+              type="button"
+              label="Cancelar"
+              (click)="cancel()"
+              icon="pi pi-times"
+              class="p-button-secondary"
+            ></button>
+          </div>
+        </div>
+      </p-card>
+    </form>
+  </div>
+</div>

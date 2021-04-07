@@ -1,0 +1,44 @@
+.public-area {
+  padding-top: 120px;
+  padding-bottom: 50px;
+  min-height: 100vh;
+  background-color: #323643;
+
+  .col-logo {
+    margin-top: -110px;
+    color: #f7f7f7;
+    font-family: "Averia Serif Libre", cursive;
+    font-size: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .internal-public-area {
+    max-width: 660px;
+    margin: auto;
+    width: 100%;
+  }
+
+  &.toggled #sidebar-wrapper {
+    margin-left: 0;
+  }
+}
+
+::ng-deep.internal-public-area a {
+  color: #84c7e5 !important;
+
+  &:hover {
+    color: #75b1cc !important;
+  }
+}
+
+.private-area {
+  overflow-x: hidden;
+  background-color: #fcfcfc;
+
+  .internal-private-area {
+    min-width: 100vw;
+  }
+}

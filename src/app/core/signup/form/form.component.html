@@ -1,0 +1,416 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 mx-auto">
+      <div class="card-form-public form">
+        <div class="logo mb-3">
+          <div class="col-md-12 text-center">
+            <h1>Cadastro de {{step === steps.USER ? 'usuário' : 'clinica'}}</h1>
+            <p *ngIf="status && step === steps.USER">
+              Preencha o formulário de <strong>dados do usuário</strong>:
+            </p>
+            <p *ngIf="step === steps.CLININC">
+              Preencha o formulário de <strong>dados da clínica</strong>:
+            </p>
+          </div>
+        </div>
+        <form
+          [formGroup]="form"
+          *ngIf="status && step === steps.USER"
+        >
+          <div class="p-fluid row" formGroupName="person">
+            <div class="col-md-12">
+              <label for="name">Nome</label>
+              <input
+                id="name"
+                type="text"
+                formControlName="name"
+                [ngClass]="applyInputError('person.name')"
+                pInputText
+              />
+              <app-error-message
+                [control]="form.get('person.name')"
+                label="Nome"
+              ></app-error-message>
+            </div>
+          </div>
+        </form>
+
+          <form
+          [formGroup]="formUser"
+          *ngIf="status && step === steps.USER"
+          >
+          <div class="p-fluid row">
+            <div class="col-md-12">
+              <label for="email">E-mail</label>
+              <input
+                id="email"
+                type="text"
+                formControlName="email"
+                [ngClass]="applyUserInputError('email')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formUser.get('email')"
+                label="E-mail"
+              ></app-error-message>
+            </div>
+          </div>
+          <div class="p-fluid row" *ngIf="verify?.data?.type === 'mail'">
+            <div class="col-md-6">
+              <label for="password">Senha</label>
+              <input
+                id="password"
+                type="password"
+                formControlName="password"
+                [ngClass]="applyUserInputError('password')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formUser.get('password')"
+                label="Senha"
+              ></app-error-message>
+            </div>
+            <div class="col-md-6">
+              <label for="conf_password">Confirme a senha</label>
+              <input
+                id="conf_password"
+                type="password"
+                formControlName="conf_password"
+                [ngClass]="applyUserInputError('conf_password')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formUser.get('conf_password')"
+                label="Confirmar senha"
+              ></app-error-message>
+            </div>
+          </div>
+        </form>
+
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          *ngIf="status && step === steps.USER"
+        >
+          <div formGroupName="person">
+            <div class="p-fluid row">
+              <div class="col-md-12">
+                <label for="cpf">CPF</label>
+                <input
+                  id="cpf"
+                  type="text"
+                  formControlName="cpf"
+                  mask="000.000.000-00"
+                  [ngClass]="applyInputError('person.cpf')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="form.get('person.cpf')"
+                  label="CPF"
+                ></app-error-message>
+              </div>
+            </div>
+            <div class="p-fluid row">
+              <div class="col-12 col-md-6">
+                <label for="sex">Sexo</label>
+                <p-dropdown
+                  inputId="sex"
+                  placeholder="Selecionar..."
+                  optionLabel="label"
+                  [options]="sex"
+                  optionValue="id"
+                  formControlName="sex"
+                ></p-dropdown>
+                <app-error-message
+                  [control]="form.get('person.sex')"
+                  label="Sexo"
+                ></app-error-message>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="birth_date">Data de nascimento</label>
+                <input
+                  id="birth_date"
+                  type="date"
+                  formControlName="birth_date"
+                  [ngClass]="applyInputError('person.birth_date')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="form.get('person.birth_date')"
+                  label="Data de nascimento"
+                ></app-error-message>
+                <!-- <p-calendar
+                  id="birth_date"
+                  dateFormat="dd/mm/yy"
+                  formControlName="birth_date"
+                ></p-calendar> -->
+                <!-- <app-error-message
+                  [control]="form.get('person.birth_date')"
+                  label="Data de nascimento"
+                ></app-error-message> -->
+              </div>
+            </div>
+            <div class="p-fluid row">
+              <div class="col-md-12">
+                <label for="phone">Telefone</label>
+                <input
+                  id="phone"
+                  type="text"
+                  formControlName="phone"
+                  [mask]="phoneMask"
+                  [ngClass]="applyInputError('person.phone')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="form.get('person.phone')"
+                  label="Telefone"
+                ></app-error-message>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" *ngIf="errorSubmit">
+            <div class="col-md-12">
+              <p-messages [value]="message" [enableService]="false" [closable]="false"></p-messages>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <button
+                pButton
+                type="submit"
+                label="Próximo"
+                [disabled]="load"
+                class="btn-block btn-primary-hc justify-content-center"
+              ><i class="pi pi-spin pi-spinner mr-2" *ngIf="load"></i></button>
+            </div>
+          </div>
+        </form>
+
+        <div *ngIf="!status">
+          <div class="row" *ngIf="verify.type === 'mail'">
+            <div class="col-md-12 p-0">
+              <p-messages [value]="message" [enableService]="false" [closable]="false"></p-messages>
+            </div>
+            <ng-container *ngIf="verify.state === 'invalidToken' && !statusResend">
+              <div class="col-md-12 mb-3">
+                <button
+                  pButton
+                  (click)="resend()"
+                  type="button"
+                  label="Reenviar"
+                  [disabled]="load"
+                  class="btn-block btn-primary-hc justify-content-center"
+                ><i class="pi pi-spin pi-spinner mr-2" *ngIf="load"></i></button>
+              </div>
+            </ng-container>
+          </div>
+          <div class="form-group">
+            <p class="text-center">
+              Já possui uma conta?
+              <a [routerLink]="['/login']" id="signup">Faça o login aqui.</a>
+            </p>
+          </div>
+        </div>
+
+        <form
+          [formGroup]="formClinic"
+          (ngSubmit)="submitClinic()"
+          *ngIf="step === steps.CLININC"
+        >
+          <div class="p-fluid row">
+            <div class="col-md-12">
+              <label for="company_name">Razão social</label>
+              <input
+                id="company_name"
+                type="text"
+                formControlName="company_name"
+                [ngClass]="applyInputErrorClinic('company_name')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formClinic.get('company_name')"
+                label="Razão social"
+              ></app-error-message>
+            </div>
+          </div>
+          <div class="p-fluid row">
+            <div class="col-md-12">
+              <label for="fantasy_name">Nome fantasia</label>
+              <input
+                id="fantasy_name"
+                type="text"
+                formControlName="fantasy_name"
+                [ngClass]="applyInputErrorClinic('fantasy_name')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formClinic.get('fantasy_name')"
+                label="Nome fantasia"
+              ></app-error-message>
+            </div>
+          </div>
+          <div class="p-fluid row">
+            <div class="col-md-12">
+              <label for="cnpj">CNPJ</label>
+              <input
+                id="cnpj"
+                type="text"
+                formControlName="cnpj"
+                mask="00.000.000/0000-00"
+                [ngClass]="applyInputErrorClinic('cnpj')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formClinic.get('cnpj')"
+                label="CNPJ"
+              ></app-error-message>
+            </div>
+          </div>
+          <div class="p-fluid row">
+            <div class="col-md-8">
+              <label for="street">Rua</label>
+              <input
+                id="street"
+                type="text"
+                formControlName="street"
+                [ngClass]="applyInputErrorClinic('street')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formClinic.get('street')"
+                label="Rua"
+              ></app-error-message>
+            </div>
+            <div class="col-md-4">
+              <label for="address_number">Número</label>
+              <input
+                id="address_number"
+                type="text"
+                formControlName="address_number"
+                [ngClass]="applyInputErrorClinic('address_number')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formClinic.get('address_number')"
+                label="Número de endereço"
+              ></app-error-message>
+            </div>
+          </div>
+          <div class="p-fluid row">
+            <div class="col-md-12">
+              <label for="district">Bairro</label>
+              <input
+                id="district"
+                type="text"
+                formControlName="district"
+                [ngClass]="applyInputErrorClinic('district')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formClinic.get('district')"
+                label="Bairro"
+              ></app-error-message>
+            </div>
+          </div>
+          <div class="p-fluid row">
+            <div class="col-md-6">
+              <label for="state">Estado</label>
+              <p-dropdown
+                inputId="state"
+                placeholder="Selecionar..."
+                optionLabel="name"
+                [options]="arrStates"
+                optionValue="id"
+                formControlName="state_id"
+                [ngClass]="applyInputErrorClinic('state_id')"
+                [filter]="true"
+                filterBy="name"
+                [virtualScroll]="true"
+                [itemSize]="20"
+                emptyFilterMessage="Não encontrado"
+              ></p-dropdown>
+              <app-error-message
+                [control]="formClinic.get('state_id')"
+                label="Estado"
+              ></app-error-message>
+            </div>
+            <div class="col-md-6">
+              <label for="city">Cidade</label>
+              <p-dropdown
+                inputId="city"
+                placeholder="Selecionar..."
+                optionLabel="name"
+                [options]="arrCities"
+                optionValue="id"
+                formControlName="city_id"
+                [ngClass]="applyInputErrorClinic('city_id')"
+                [filter]="true"
+                filterBy="name"
+                [virtualScroll]="true"
+                [itemSize]="20"
+                emptyFilterMessage="Não encontrado"
+              ></p-dropdown>
+              <app-error-message
+                [control]="formClinic.get('city_id')"
+                label="Cidade"
+              ></app-error-message>
+            </div>
+          </div>
+
+          <div class="p-fluid row">
+            <div class="col-md-6">
+              <label for="cep">CEP</label>
+              <input
+                id="cep"
+                type="text"
+                formControlName="cep"
+                mask="00000-000"
+                [ngClass]="applyInputErrorClinic('cep')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formClinic.get('cep')"
+                label="CEP"
+              ></app-error-message>
+            </div>
+            <div class="col-md-6">
+              <label for="phone">Telefone</label>
+              <input
+                id="phone"
+                type="text"
+                formControlName="phone"
+                [mask]="phoneMask"
+                [ngClass]="applyInputErrorClinic('phone')"
+                pInputText
+              />
+              <app-error-message
+                [control]="formClinic.get('phone')"
+                label="Telefone"
+              ></app-error-message>
+            </div>
+          </div>
+
+          <div class="row" *ngIf="errorSubmit">
+            <div class="col-md-12">
+              <p-messages [value]="message" [enableService]="false" [closable]="false"></p-messages>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <button
+                pButton
+                type="submit"
+                label="Finalizar"
+                [disabled]="load"
+                class="btn-block btn-primary-hc justify-content-center"
+              ><i class="pi pi-spin pi-spinner mr-2" *ngIf="load"></i></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

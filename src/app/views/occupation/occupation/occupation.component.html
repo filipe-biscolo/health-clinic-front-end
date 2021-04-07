@@ -1,0 +1,63 @@
+<div class="row">
+    <div class="col-md-12 p-0 mb-3">
+      <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12 p-0">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="row pt-2">
+              <div class="col-md-6">
+                <h4>{{titlePage}}</h4>
+              </div>
+            </div>
+          </ng-template>
+  
+          <div class="p-fluid row">
+            <div class="col-12 col-md-8">
+              <label for="name">Nome</label>
+              <input id="name" type="text" formControlName="name" [ngClass]="applyInputError('name')" pInputText />
+              <app-error-message [control]="form.get('name')" label="Nome"></app-error-message>
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="permissions">Permissões</label>
+              <p-dropdown
+                inputId="permissions"
+                placeholder="Selecionar..."
+                optionLabel="label"
+                [options]="permissions"
+                [ngClass]="applyInputError('permissions')"
+                optionValue="id"
+                formControlName="permissions"
+              ></p-dropdown>
+              <app-error-message [control]="form.get('permissions')" label="Permissões"></app-error-message>
+            </div>
+          </div>
+            
+          <div class="row">
+            <div class="col-12 col-md-12 m-0 text-right">
+              <button
+                pButton
+                type="submit"
+                label="Salvar"
+                icon="pi pi-check"
+                class="p-button-success mr-2"
+              ></button>
+              <button
+                pButton
+                type="button"
+                label="Cancelar"
+                (click)="cancel()"
+                icon="pi pi-times"
+                class="p-button-secondary"
+              ></button>
+            </div>
+          </div>
+        </p-card>
+      </form>
+    </div>
+  </div>
+  

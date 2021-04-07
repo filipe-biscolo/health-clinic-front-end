@@ -1,0 +1,414 @@
+<div class="row">
+  <div class="col-md-12 p-0 mb-3">
+    <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12 p-0">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="row pt-2">
+          <div class="col-md-6">
+            <h4>{{ titlePage }}</h4>
+          </div>
+        </div>
+      </ng-template>
+      <form [formGroup]="form">
+        <div class="p-fluid row" *ngIf="admin">
+          <div class="col-md-12 d-inline-flex">
+            <div class="p-field-checkbox mb-0">
+              <p-checkbox
+                formControlName="admin"
+                binary="true"
+                inputId="admin"
+              ></p-checkbox>
+              <label for="admin" class="mb-0">Administrador</label>
+            </div>
+          </div>
+        </div>
+        <div class="p-fluid row">
+          <ng-container formGroupName="person">
+            <div class="col-12 col-md-6">
+              <label for="cpf">CPF</label>
+              <input
+                id="cpf"
+                type="text"
+                formControlName="cpf"
+                mask="000.000.000-00"
+                [ngClass]="applyInputError('person.cpf')"
+                pInputText
+              />
+              <app-error-message
+                [control]="form.get('person.cpf')"
+                label="CPF"
+              ></app-error-message>
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="rg">RG</label>
+              <input
+                id="rg"
+                type="text"
+                formControlName="rg"
+                [ngClass]="applyInputError('person.cpf')"
+                pInputText
+              />
+              <app-error-message
+                [control]="form.get('person.rg')"
+                label="RG"
+              ></app-error-message>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="p-fluid row">
+          <ng-container formGroupName="person">
+            <div class="col-12 col-md-8">
+              <label for="name">Nome</label>
+              <input
+                id="name"
+                type="text"
+                formControlName="name"
+                [ngClass]="applyInputError('person.name')"
+                pInputText
+              />
+              <app-error-message
+                [control]="form.get('person.name')"
+                label="Nome"
+              ></app-error-message>
+            </div>
+            <div class="col-6 col-md-4">
+              <label for="sex">Sexo</label>
+              <p-dropdown
+                inputId="sex"
+                placeholder="Selecionar..."
+                optionLabel="label"
+                [options]="sex"
+                optionValue="id"
+                formControlName="sex"
+              ></p-dropdown>
+            </div>
+            <div class="col-6 col-md-4">
+              <label for="birth_date">Data de nascimento</label>
+              <input
+                id="birth_date"
+                type="date"
+                formControlName="birth_date"
+                placeholder="Date"
+                pInputText
+              />
+            </div>
+            <div class="col-6 col-md-4">
+              <label for="marital_status">Estado civil</label>
+              <p-dropdown
+                inputId="marital_status"
+                placeholder="Selecionar..."
+                optionLabel="label"
+                [options]="marital_status"
+                optionValue="id"
+                formControlName="marital_status"
+              ></p-dropdown>
+            </div>
+          </ng-container>
+          <div class="col-12 col-md-4" *ngIf="admin">
+            <label for="health_insurance">Cargo</label>
+            <p-dropdown
+              inputId="occupation"
+              placeholder="Selecionar..."
+              optionLabel="name"
+              [options]="occupations"
+              optionValue="id"
+              formControlName="occupation_id"
+              [filter]="true"
+              filterBy="name"
+              [virtualScroll]="true"
+              [itemSize]="20"
+              [ngClass]="applyInputError('occupation_id')"
+              emptyFilterMessage="Não encontrado"
+            ></p-dropdown>
+            <app-error-message
+                [control]="form.get('occupation_id')"
+                label="Cargo"
+              ></app-error-message>
+          </div>
+          <ng-container formGroupName="person">
+            <div class="col-6 col-md-4">
+              <label for="phone">Telefone</label>
+              <input
+                id="phone"
+                type="text"
+                formControlName="phone"
+                [mask]="phoneMask"
+                [ngClass]="applyInputError('person.phone')"
+                pInputText
+              />
+              <app-error-message
+                [control]="form.get('person.phone')"
+                label="Telefone"
+              ></app-error-message>
+            </div>
+            <div class="col-6 col-md-4">
+              <label for="phone_aux">Telefone auxiliar</label>
+              <input
+                id="phone_aux"
+                type="text"
+                formControlName="phone_aux"
+                [mask]="phoneMaskAux"
+                pInputText
+              />
+            </div>
+          </ng-container>
+          <ng-container formGroupName="user" *ngIf="form.get('id').value">
+            <div class="col-12 col-md-4">
+              <label for="email">E-mail</label>
+              <input
+                id="email"
+                type="text"
+                formControlName="email"
+                [ngClass]="applyInputError('user.email')"
+                pInputText
+              />
+              <app-error-message
+                [control]="form.get('user.email')"
+                label="E-mail"
+              ></app-error-message>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="p-fluid row">
+          <div class="col-12 col-md-12">
+            <label for="note">Observações</label>
+            <textarea
+              id="note"
+              type="text"
+              rows="4"
+              formControlName="note"
+              pInputTextarea
+            ></textarea>
+          </div>
+        </div>
+      </form>
+
+      <ng-container *ngIf="!form.get('id').value">
+        <form [formGroup]="formUser">
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <h5>Usuário e senha</h5>
+            </div>
+          </div>
+          <div class="p-fluid row">
+            <ng-container>
+              <div class="col-12 col-md-4">
+                <label for="email">E-mail (Usuário)</label>
+                <input
+                  id="email"
+                  type="text"
+                  formControlName="email"
+                  [ngClass]="applyUserInputError('email')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="formUser.get('email')"
+                  label="E-mail"
+                ></app-error-message>
+              </div>
+              <div class="col-6 col-md-4">
+                <label for="password">Senha</label>
+                <input
+                  id="password"
+                  type="password"
+                  formControlName="password"
+                  [ngClass]="applyUserInputError('password')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="formUser.get('password')"
+                  label="Senha"
+                ></app-error-message>
+              </div>
+              <div class="col-6 col-md-4">
+                <label for="conf_password">Confirme a senha</label>
+                <input
+                  id="conf_password"
+                  type="password"
+                  formControlName="conf_password"
+                  [ngClass]="applyUserInputError('conf_password')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="formUser.get('conf_password')"
+                  label="Confirmar senha"
+                ></app-error-message>
+              </div>
+            </ng-container>
+          </div>
+        </form>
+      </ng-container>
+
+    <form [formGroup]="form" *ngIf="admin">
+      <div class="row mt-3">
+        <div class="col-md-12">
+          <h5>Convênios</h5>
+        </div>
+      </div>
+
+    <div class="p-fluid row pb-3">
+      <div class="col-12 col-md-4 mb-0">
+          <p-dropdown
+          inputId="hi"
+          placeholder="Selecionar..."
+          optionLabel="name"
+          [options]="healthInsurances"
+          optionValue="id"
+          formControlName="health_insurance_id"
+        ></p-dropdown>
+      </div>
+      <div class="float-right mt-auto">
+        <button
+          type="button"
+          pButton
+          pRipple
+          icon="pi pi-save"
+          (click)="submitHI()"
+          class="p-button-info"
+          pTooltip="Adicionar convênio"
+          tooltipPosition="left"
+        ></button>
+      </div>
+    </div>
+    </form>
+    <div class="row" *ngIf="admin">
+      <div class="col-md-12">
+      <p-table [columns]="cols" [value]="professionalHIs" [responsive]="true">
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of cols">
+                    {{col.header}}
+                </th>
+                <th class="col-actions text-center">Ações</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+                <td *ngFor="let col of columns" [title]="rowData[col.field]">
+                    <span class="p-column-title">{{col.header}}</span>
+                    {{rowData[col.field]}}
+                </td>
+                <td class="col-actions text-center">
+                    <button (click)="confirmDelete(rowData['id'])" pButton pRipple type="button" pTooltip="Excluir" tooltipPosition="left" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <p-paginator class="d-none d-md-block" [first]="first" [rows]="rows" [totalRecords]="totalRecords" [rowsPerPageOptions]="rowsPerPageOptions" [pageLinkSize]="4" (onPageChange)="paginate($event)"></p-paginator>
+            <p-paginator class="d-block d-md-none" [first]="first" [rows]="rows" [totalRecords]="totalRecords" (onPageChange)="paginate($event)" [showFirstLastIcon]="false" [showJumpToPageDropdown]="true" [showPageLinks]="false" currentPageReportTemplate="{currentPage} de {totalPages}"></p-paginator>
+        </ng-template>
+    </p-table>
+  </div>
+  </div>
+
+      <div class="row mt-3">
+        <div class="col-md-12">
+          <h5>Endereço</h5>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="p-fluid row" formGroupName="person">
+          <div class="col-12 col-md-4">
+            <label for="street">Rua</label>
+            <input
+              id="street"
+              type="text"
+              formControlName="street"
+              pInputText
+            />
+          </div>
+          <div class="col-12 col-md-4">
+            <label for="district">Bairro</label>
+            <input
+              id="district"
+              type="text"
+              formControlName="district"
+              pInputText
+            />
+          </div>
+          <div class="col-12 col-md-4">
+            <label for="address_number">Número</label>
+            <input
+              id="address_number"
+              type="text"
+              formControlName="address_number"
+              pInputText
+            />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label for="state">Estado</label>
+            <p-dropdown
+              inputId="state"
+              placeholder="Selecionar..."
+              optionLabel="name"
+              [options]="arrStates"
+              optionValue="id"
+              formControlName="state_id"
+              [filter]="true"
+              filterBy="name"
+              [virtualScroll]="true"
+              [itemSize]="20"
+              emptyFilterMessage="Não encontrado"
+            ></p-dropdown>
+          </div>
+          <div class="col-12 col-md-4">
+            <label for="city">Cidade</label>
+            <p-dropdown
+              inputId="city"
+              placeholder="Selecionar..."
+              optionLabel="name"
+              [options]="arrCities"
+              optionValue="id"
+              formControlName="city_id"
+              [filter]="true"
+              filterBy="name"
+              [virtualScroll]="true"
+              [itemSize]="20"
+              emptyFilterMessage="Não encontrado"
+            ></p-dropdown>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label for="cep">CEP</label>
+            <input
+              id="cep"
+              type="text"
+              formControlName="cep"
+              mask="00000-000"
+              pInputText
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12 col-md-12 m-0 text-right">
+            <button
+              pButton
+              type="submit"
+              label="Salvar"
+              icon="pi pi-check"
+              class="p-button-success mr-2"
+            ></button>
+            <button
+              pButton
+              type="button"
+              label="Cancelar"
+              (click)="cancel()"
+              icon="pi pi-times"
+              class="p-button-secondary"
+            ></button>
+          </div>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

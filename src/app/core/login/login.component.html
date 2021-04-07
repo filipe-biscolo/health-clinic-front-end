@@ -1,0 +1,78 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 mx-auto">
+      <div class="card-form-public form">
+        <div class="logo mb-3">
+          <div class="col-md-12 text-center">
+            <h1>Login</h1>
+          </div>
+        </div>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="p-fluid row">
+            <div class="col-md-12">
+              <label for="user">E-mail</label>
+              <input id="user" type="text" formControlName="email" [ngClass]="applyInputError('email')" pInputText />
+              <app-error-message [control]="form.get('email')" label="E-mail"></app-error-message>
+            </div>
+            <div class="col-md-12">
+              <label for="password">Senha</label>
+              <span class="p-input-icon-right">
+                <i class="pi {{this.typeInput === 'password' ? 'pi-lock' : 'pi-lock-open'}}" (click)="viewPassword()" role="button"></i>
+                <input id="password" [type]="typeInput" formControlName="password" [ngClass]="applyInputError('password')" pInputText/>
+              </span>
+              <app-error-message [control]="form.get('password')" label="Senha"></app-error-message>
+              <small class="float-right"><a [routerLink]="['/forgot-password']">Esqueceu a senha?</a></small>
+            </div>
+          </div>
+
+          <div class="row" *ngIf="errorType === 'email'">
+            <div class="col-md-12 p-0">
+              <p-messages [value]="message" [enableService]="false" [closable]="false"></p-messages>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <button
+                pButton
+                type="submit"
+                label="Acessar"
+                [disabled]="load"
+                class="btn-block btn-primary-hc justify-content-center"
+              ><i class="pi pi-spin pi-spinner mr-2" *ngIf="load"></i></button>
+            </div>
+          </div>
+          
+          <div class="col-md-12 mb-2 text-center">
+            <div class="login-or">
+              <hr class="hr-or" />
+              <span class="span-or">ou</span>
+            </div>
+          </div>
+          <div class="row" *ngIf="errorType === 'social'">
+            <div class="col-md-12 p-0">
+              <p-messages [value]="message" [enableService]="false" [closable]="false"></p-messages>
+            </div>
+          </div>
+          <div class="col-md-12 mb-3">
+            <p class="text-center">
+              <button
+                type="button"
+                class="p-button-outlined"
+                label="Fazer login com o Google"
+                [disabled]="loadSocial"
+                (click)="signInWithGoogle()"
+                pButton>
+              <i class="pi {{ loadSocial ? 'pi-spin pi-spinner' : 'pi pi-google' }} mr-2"></i></button>
+            </p>
+          </div>
+          <div class="form-group">
+            <p class="text-center">
+              Não possui uma conta? <a [routerLink]="['/signup']" id="signup">Cadastre-se aqui.</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+.chart-responsive {
+	height: 50vmin;
+	width: 100%;
+}
+
+
+@media screen and (max-width: 40rem) {
+	.chart-responsive {
+		height: 75vmin;
+	}	
+}

@@ -1,0 +1,217 @@
+<p-dialog
+  [header]="titleModal"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: width, height: height }"
+  [baseZIndex]="1000"
+  [draggable]="false"
+  [resizable]="true"
+  [closable]="false"
+  [contentStyle]="{ overflow: 'visible' }"
+  (onShow)="onShow($event)"
+  (onHide)="onHide($event)"
+>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <div class="col-md-12 p-0">
+        <div class="p-fluid row">
+          <div class="col-12 col-md-6">
+            <label for="professional">Profissional</label>
+            <p-dropdown
+              inputId="professional"
+              placeholder="Selecionar..."
+              optionLabel="person.name"
+              [options]="professionals"
+              [ngClass]="applyInputError('professional_id')"
+              optionValue="id"
+              formControlName="professional_id"
+              [filter]="true"
+              filterBy="person.name"
+              [virtualScroll]="true"
+              [itemSize]="20"
+              emptyFilterMessage="Não encontrado"
+            ></p-dropdown>
+            <app-error-message
+              [control]="form.get('professional_id')"
+              label="Profissional"
+            ></app-error-message>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label for="procedure">Procedimento</label>
+            <p-dropdown
+              inputId="procedure"
+              placeholder="Selecionar..."
+              optionLabel="label"
+              [options]="procedures"
+              [ngClass]="applyInputError('procedure_id')"
+              optionValue="id"
+              formControlName="procedure_id"
+              [filter]="true"
+              filterBy="name"
+              [virtualScroll]="true"
+              [itemSize]="20"
+              emptyFilterMessage="Não encontrado"
+            ></p-dropdown>
+            <app-error-message
+              [control]="form.get('procedure_id')"
+              label="Procedimento"
+            ></app-error-message>
+          </div>
+        </div>
+
+        <div class="p-fluid row">
+          <div class="col-6 col-md-3">
+            <label for="date">Data</label>
+            <input
+              id="date"
+              type="date"
+              formControlName="date"
+              [ngClass]="applyInputError('date')"
+              pInputText
+            />
+            <app-error-message
+              [control]="form.get('date')"
+              label="Data"
+            ></app-error-message>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="hour">Hora</label>
+            <input
+              id="hour"
+              type="time"
+              formControlName="hour"
+              [ngClass]="applyInputError('hour')"
+              pInputText
+            />
+            <app-error-message
+              [control]="form.get('hour')"
+              label="Hora"
+            ></app-error-message>
+          </div>
+          <div class="col-12 col-md-6">
+            <label for="patient">Paciente</label>
+            <p-dropdown
+              inputId="patient"
+              placeholder="Selecionar..."
+              optionLabel="person.name"
+              [options]="patients"
+              [ngClass]="applyInputError('patient_id')"
+              optionValue="id"
+              formControlName="patient_id"
+              [filter]="true"
+              filterBy="person.name"
+              [virtualScroll]="true"
+              [itemSize]="20"
+              emptyFilterMessage="Não encontrado"
+            ></p-dropdown>
+            <app-error-message
+              [control]="form.get('patient_id')"
+              label="Paciente"
+            ></app-error-message>
+          </div>
+        </div>
+
+        <div class="p-fluid row">
+          <div class="col-md-6 d-inline-flex align-items-center">
+            <p-checkbox
+              formControlName="has_health_insurance"
+              binary="true"
+              inputId="has_health_insurance"
+            ></p-checkbox>
+            <label for="has_health_insurance" class="mb-0 pl-2"
+              >Utilizar convênio</label
+            >
+          </div>
+        </div>
+        <div class="p-fluid row">
+          <div class="col-md-6">
+            <label for="health_insurance">Convênio</label>
+            <p-dropdown
+              inputId="health_insurance"
+              placeholder="Selecionar..."
+              optionLabel="name"
+              [options]="healthInsurances"
+              optionValue="id"
+              formControlName="health_insurance_id"
+              [filter]="true"
+              filterBy="name"
+              [virtualScroll]="true"
+              [itemSize]="20"
+              emptyFilterMessage="Não encontrado"
+            ></p-dropdown>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row footer-actions" *ngIf="!form.get('id').value">
+      <div class="col-12 col-md-12 m-0 text-right">
+        <button
+          pButton
+          type="submit"
+          label="Salvar"
+          icon="pi pi-check"
+          class="p-button-success mr-2"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="Cancelar"
+          (click)="close()"
+          icon="pi pi-times"
+          class="p-button-secondary"
+        ></button>
+      </div>
+    </div>
+    <div class="row footer-actions" *ngIf="form.get('id').value">
+      <div class="col-12 col-md-6 mt-auto text-left">
+        <ng-container *ngIf="stateModal === statesModal.VIEW">
+          <button
+            pButton
+            type="button"
+            (click)="editScheduling()"
+            label="Confirmado"
+            icon="pi pi-flag p-button-help"
+            class="p-button-outlined p-button-help p-button-sm mr-2"
+          ></button>
+          <button
+            pButton
+            type="button"
+            (click)="editScheduling()"
+            label="Cancelado"
+            icon="pi pi-flag"
+            class="p-button-outlined p-button-danger p-button-sm"
+          ></button>
+        </ng-container>
+      </div>
+      <div class="col-12 col-md-6 m-0 text-right">
+        <button
+          pButton
+          type="submit"
+          label="Salvar"
+          icon="pi pi-check"
+          class="p-button-success mr-2"
+          *ngIf="stateModal === statesModal.EDIT"
+        ></button>
+        <button
+          pButton
+          type="button"
+          (click)="editScheduling()"
+          label="Editar"
+          icon="pi pi-pencil"
+          class="p-button-outlined mr-2"
+          *ngIf="stateModal === statesModal.VIEW"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="{{ stateModal === statesModal.VIEW ? 'Fechar' : 'Cancelar' }}"
+          (click)="close()"
+          icon="pi pi-times"
+          class="p-button-secondary"
+        ></button>
+      </div>
+    </div>
+  </form>
+</p-dialog>

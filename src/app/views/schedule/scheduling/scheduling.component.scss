@@ -1,0 +1,17 @@
+::ng-deep .p-dialog {
+    max-height: 100%!important;
+}
+
+@media screen and (max-width: 40rem) {
+    ::ng-deep .p-dialog-mask.p-component-overlay {
+            overflow-y: auto!important;
+    }
+
+    .footer-actions [class^='col'] {
+        text-align: center!important;
+
+        &:last-child{
+            padding-top: 15px!important;
+        }
+    }
+}

@@ -1,0 +1,49 @@
+.container-fluid {
+  padding: 30px;
+}
+
+.button-sidebar {
+  background-color: aqua;
+  width: 100%;
+}
+
+ul {
+  list-style-type: none;
+  padding-top: 20px;
+  padding-left: 20px;
+
+  li {
+    width: 190px;
+    padding-bottom: 5px;
+
+    button {
+      width: 100%;
+      color: #323643;
+
+      &:hover,
+      &:focus,
+      &:active {
+        color: #323643;
+        background-color: #eaeaea;
+        outline: none;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+::ng-deep ul li button .p-button-label {
+  text-align: left;
+  font-size: 18px;
+}
+
+::ng-deep ul li.active button {
+  border: 1px solid #323643 !important;
+  font-weight: 600;
+}
+
+@media screen and (max-width: 40rem) {
+  .container-fluid {
+    padding: 15px;
+  }
+}

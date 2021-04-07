@@ -1,0 +1,203 @@
+<div class="row">
+  <div class="col-md-12 p-0 mb-3">
+    <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12 p-0">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="row">
+          <div class="col-12 col-md-6 title my-auto">
+            <h4 class="m-0">Agenda</h4>
+          </div>
+          <div class="col-12 col-md-6 buttons"></div>
+        </div>
+      </ng-template>
+      <p-table class="table-schedule" [columns]="cols" [value]="schedule" [responsive]="true">
+        <ng-template pTemplate="caption">
+          <div class="row">
+            <div class="col-12 col-md-8 actions">
+              <div class="p-fluid row">
+                <div class="col-12 col-md-5">
+                  <label for="professional">Profissional</label>
+                  <p-dropdown
+                    class="p-inputtext-sm"
+                    inputId="professional"
+                    placeholder="Selecionar..."
+                    optionLabel="person.name"
+                    [options]="searchProfessionals"
+                    optionValue="id"
+                    [filter]="true"
+                    filterBy="person.name"
+                    [virtualScroll]="true"
+                    [itemSize]="20"
+                    [(ngModel)]="idProfessional"
+                    emptyFilterMessage="Não encontrado"
+                    [disabled]="permissions === listPermissions.HP && !admin"
+                  ></p-dropdown>
+                </div>
+                <div class="col-12 col-md">
+                  <label for="start">Início</label>
+                  <input
+                      id="start"
+                      class="p-inputtext-sm"
+                      type="date"
+                      placeholder="Date"
+                      [max]="dateEnd"
+                      [(ngModel)]="dateStart"
+                      pInputText
+                    />
+                </div>
+                <div class="col-12 col-md">
+                  <label for="end">Fim</label>
+                  <input
+                      id="end"
+                      class="p-inputtext-sm"
+                      type="date"
+                      placeholder="Date"
+                      [min]="dateStart"
+                      [(ngModel)]="dateEnd"
+                      pInputText
+                    />
+                </div>
+                <div class="float-right mt-auto">
+                  <button
+                    type="button"
+                    pButton
+                    pRipple
+                    icon="pi pi-search"
+                    (click)="search()"
+                    class="p-button-secondary p-button-sm"
+                    pTooltip="Pesquisar"
+                    tooltipPosition="left"
+                  ></button>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-4 mt-auto buttons">
+              <button
+                type="button"
+                pButton
+                pRipple
+                icon="pi pi-refresh"
+                (click)="refresh()"
+                class="p-button-sm p-mr-2"
+                pTooltip="Atualizar agenda"
+                tooltipPosition="left"
+              ></button>
+              <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()" class="p-button-danger p-button-sm p-mr-2"  pTooltip="Exportar dados para XLS" tooltipPosition="left"></button>
+              <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success p-button-sm p-mr-2"  pTooltip="Exportar dados para XLS" tooltipPosition="left"></button>
+              <button
+                type="button"
+                pButton
+                pRipple
+                icon="pi pi-plus"
+                (click)="showScheduling()"
+                class="btn-primary-hc p-button-sm"
+                pTooltip="Adicionar agendamento"
+                tooltipPosition="left"
+              ></button>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of cols">
+              {{ col.header }}
+            </th>
+            <th class="col-actions text-center">Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr>
+            <td *ngFor="let col of columns" [title]="rowData[col.field]">
+              <span class="p-column-title">{{ col.header }}</span>
+              <ng-container [ngSwitch]="col.field">
+                <ng-container *ngSwitchCase="'scheduling_status'">
+                  {{ rowData[col.field] | schedulingStatus }}
+                </ng-container>
+                <ng-container *ngSwitchCase="'date_hour'">
+                  {{ rowData[col.field] | date: "dd/MM/yyyy, HH:mm" }}
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  {{ rowData[col.field] ? rowData[col.field] : "-" }}
+                </ng-container>
+              </ng-container>
+            </td>
+            <td class="col-actions text-center">
+              <button
+                *ngIf="headerIdProfessional === rowData['professional_id']"
+                (click)="startAttendance(rowData['id'])"
+                pButton
+                pRipple
+                type="button"
+                pTooltip="Atender"
+                tooltipPosition="left"
+                icon="pi pi-play"
+                class="p-button-rounded p-button-text p-button-success"
+              ></button>
+              <button
+                (click)="editScheduling(rowData['id'])"
+                pButton
+                pRipple
+                type="button"
+                pTooltip="Editar"
+                tooltipPosition="left"
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-text p-button-secondary"
+              ></button>
+              <button
+                (click)="confirmDelete(rowData['id'])"
+                pButton
+                pRipple
+                type="button"
+                pTooltip="Excluir"
+                tooltipPosition="left"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+          <p-paginator
+            class="d-none d-md-block"
+            [first]="first"
+            [rows]="rows"
+            [totalRecords]="totalRecords"
+            [rowsPerPageOptions]="rowsPerPageOptions"
+            [pageLinkSize]="4"
+            (onPageChange)="paginate($event)"
+          ></p-paginator>
+          <p-paginator
+            class="d-block d-md-none"
+            [first]="first"
+            [rows]="rows"
+            [totalRecords]="totalRecords"
+            (onPageChange)="paginate($event)"
+            [showFirstLastIcon]="false"
+            [showJumpToPageDropdown]="true"
+            [showPageLinks]="false"
+            currentPageReportTemplate="{currentPage} de {totalPages}"
+          ></p-paginator>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+</div>
+
+<app-scheduling
+  [visible]="visibleScheduling"
+  [idClinic]="idClinic"
+  [idScheduling]="idScheduling"
+  [professionals]="professionals"
+  [procedures]="procedures"
+  (closeScheduling)="closeScheduling($event)"
+></app-scheduling>
+<p-confirmDialog
+  [style]="{ width: '400px' }"
+  [baseZIndex]="5000"
+  [closable]="false"
+></p-confirmDialog>

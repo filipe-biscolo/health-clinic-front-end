@@ -1,0 +1,97 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 mx-auto">
+      <div class="card-form-public form">
+        <div class="logo">
+          <div class="col-md-12 text-center">
+            <h1>Cadastrar clínica</h1>
+            <p>Cadastre-se com seu e-mail ou com sua conta Google:</p>
+          </div>
+        </div>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <ng-container *ngIf="!status; else mailSubmited">
+            <div class="p-fluid row">
+              <div class="col-md-12">
+                <label for="user">E-mail</label>
+                <input
+                  id="user"
+                  type="text"
+                  formControlName="email"
+                  [ngClass]="applyInputError('email')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="form.get('email')"
+                  label="E-mail"
+                ></app-error-message>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <button
+                  pButton
+                  type="submit"
+                  label="Cadastrar"
+                  [disabled]="load"
+                  class="btn-block btn-primary-hc justify-content-center"
+                ><i class="pi pi-spin pi-spinner mr-2" *ngIf="load"></i></button>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12 mb-2 text-center">
+                <div class="login-or">
+                  <hr class="hr-or" />
+                  <span class="span-or">ou</span>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <div class="text-center">
+                  <button
+                    type="button"
+                    class="p-button-outlined"
+                    label="Fazer cadastro com o Google"
+                    icon="pi pi-google"
+                    (click)="submitSocial()"
+                    pButton
+                  >
+                    <i class="mr-2"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #mailSubmited>
+            <div class="row">
+              <div class="col-md-12 p-0">
+                <p-messages [value]="message" [enableService]="false" [closable]="false"></p-messages>
+              </div>
+            </div>
+            <div class="row" *ngIf="emailRegistered">
+              <div class="col-md-12 mb-3">
+                <button
+                  pButton
+                  type="button"
+                  (click)="resend()"
+                  label="Reenviar e-mail"
+                  [disabled]="load"
+                  class="btn-block btn-primary-hc justify-content-center"
+                ><i class="pi pi-spin pi-spinner mr-2" *ngIf="load"></i></button>
+              </div>
+            </div>
+          </ng-template>
+
+          <div class="form-group">
+            <p class="text-center">
+              Já possui uma conta?
+              <a [routerLink]="['/login']" id="signup">Faça o login aqui.</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,70 @@
+.navbar {
+  flex-wrap: nowrap;
+
+  .navbar-toggler {
+    padding: 0;
+    margin-right: 20px;
+
+    &:hover,
+    &:focus,
+    &:active {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+  }
+}
+
+.navbar.navbar-expand-md {
+  background-color: #323643;
+}
+
+.navbar-brand {
+  font-size: 20px;
+  display: inline-flex;
+  font-family: "Averia Serif Libre", cursive;
+}
+
+.navbar-collapse {
+  text-align: right;
+  align-items: center;
+}
+
+.nav-item {
+  #navbarDropdown {
+    color: #fff;
+    font-size: 16px;
+
+    i {
+      border: 2px solid #fff;
+      border-radius: 50%;
+      padding: 4px;
+    }
+  }
+  .dropdown-menu {
+    padding: 5px;
+    position: absolute;
+    .dropdown-item {
+      color: #323643;
+      border-radius: 4px;
+      padding: 4px;
+
+      &:hover,
+      &:focus,
+      &:active {
+        color: #323643;
+        background-color: #eaeaea;
+        outline: none;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+.clinic-name {
+  // display: flex!important;
+  margin-bottom: 0;
+  padding-left: 16px;
+  border-left: 1px solid #fff;
+  color: #fff;
+  align-items: center;
+}

@@ -1,0 +1,22 @@
+<div class="private-area" *ngIf="privatePage; else publicPage">
+  
+  <div class="internal-private-area">
+    <app-header></app-header>
+    <app-sidebar-menu></app-sidebar-menu>
+  </div>
+</div>
+
+<ng-template #publicPage>
+  <div class="public-area">
+    <div class="row">
+      <div class="col col-logo">
+        <img class="pr-2" height="50" width="50" src="./assets/images/hclinic-logo.svg">Health Clinic
+      </div>
+    </div>
+    <div class="internal-public-area">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</ng-template>
+
+<p-toast [baseZIndex]="5000"></p-toast>

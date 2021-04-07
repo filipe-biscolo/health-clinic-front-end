@@ -1,0 +1,217 @@
+<div class="row">
+    <div class="col-md-12 p-0 mb-3">
+      <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12 p-0">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="row pt-2">
+              <div class="col-md-6">
+                <h4>{{titlePage}}</h4>
+              </div>
+            </div>
+          </ng-template>
+
+          <div class="p-fluid row">
+            <div class="col-md-6">
+              <label for="cnpj">CNPJ</label>
+              <input
+                id="cnpj"
+                type="text"
+                formControlName="cnpj"
+                mask="00.000.000/0000-00"
+                [ngClass]="applyInputError('cnpj')"
+                pInputText
+              />
+              <app-error-message
+                [control]="form.get('cnpj')"
+                label="CNPJ"
+              ></app-error-message>
+            </div>
+            <div class="col-12 col-md-6">
+                <label for="company_name">Razão social</label>
+                <input
+                  id="company_name"
+                  type="text"
+                  formControlName="company_name"
+                  [ngClass]="applyInputError('company_name')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="form.get('company_name')"
+                  label="Razão social"
+                ></app-error-message>
+              </div>
+          </div>
+
+          <div class="p-fluid row">
+            <div class="col-12 col-md-6">
+                <label for="fantasy_name">Nome fantasia</label>
+                <input
+                  id="fantasy_name"
+                  type="text"
+                  formControlName="fantasy_name"
+                  [ngClass]="applyInputError('fantasy_name')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="form.get('fantasy_name')"
+                  label="Nome fantasia"
+                ></app-error-message>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="phone">Telefone</label>
+                <input
+                  id="phone"
+                  type="text"
+                  formControlName="phone"
+                  [mask]="phoneMask"
+                  [ngClass]="applyInputError('phone')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="form.get('phone')"
+                  label="Telefone"
+                ></app-error-message>
+              </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <h5>Endereço</h5>
+            </div>
+          </div>
+
+          <div class="p-fluid row">
+            <div class="col-12 col-md-4">
+              <label for="street">Rua</label>
+              <input
+                id="street"
+                type="text"
+                formControlName="street"
+                [ngClass]="applyInputError('street')"
+                pInputText
+              />
+              <app-error-message
+                [control]="form.get('street')"
+                label="Rua"
+              ></app-error-message>
+            </div>
+            <div class="col-12 col-md-4">
+                <label for="district">Bairro</label>
+                <input
+                  id="district"
+                  type="text"
+                  formControlName="district"
+                  [ngClass]="applyInputError('district')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="form.get('district')"
+                  label="Bairro"
+                ></app-error-message>
+              </div>
+            <div class="col-12 col-md-4">
+              <label for="address_number">Número</label>
+              <input
+                id="address_number"
+                type="text"
+                formControlName="address_number"
+                [ngClass]="applyInputError('address_number')"
+                pInputText
+              />
+              <app-error-message
+                [control]="form.get('address_number')"
+                label="Número de endereço"
+              ></app-error-message>
+            </div>
+          </div>
+          
+          <div class="p-fluid row">
+            <div class="col-12 col-md-4">
+              <label for="state">Estado</label>
+              <p-dropdown
+                inputId="state"
+                placeholder="Selecionar..."
+                optionLabel="name"
+                [options]="arrStates"
+                optionValue="id"
+                formControlName="state_id"
+                [ngClass]="applyInputError('state_id')"
+                [filter]="true"
+                filterBy="name"
+                [virtualScroll]="true"
+                [itemSize]="20"
+                emptyFilterMessage="Não encontrado"
+              ></p-dropdown>
+              <app-error-message
+                [control]="form.get('state_id')"
+                label="Estado"
+              ></app-error-message>
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="city">Cidade</label>
+              <p-dropdown
+                inputId="city"
+                placeholder="Selecionar..."
+                optionLabel="name"
+                [options]="arrCities"
+                optionValue="id"
+                formControlName="city_id"
+                [ngClass]="applyInputError('city_id')"
+                [filter]="true"
+                filterBy="name"
+                [virtualScroll]="true"
+                [itemSize]="20"
+                emptyFilterMessage="Não encontrado"
+              ></p-dropdown>
+              <app-error-message
+                [control]="form.get('city_id')"
+                label="Cidade"
+              ></app-error-message>
+            </div>
+            <div class="col-12 col-md-4">
+                <label for="cep">CEP</label>
+                <input
+                  id="cep"
+                  type="text"
+                  formControlName="cep"
+                  mask="00000-000"
+                  [ngClass]="applyInputError('cep')"
+                  pInputText
+                />
+                <app-error-message
+                  [control]="form.get('cep')"
+                  label="CEP"
+                ></app-error-message>
+              </div>
+          </div>
+            
+          <div class="row">
+            <div class="col-12 col-md-12 m-0 text-right">
+              <button
+                pButton
+                type="submit"
+                label="Salvar"
+                icon="pi pi-check"
+                class="p-button-success mr-2"
+              ></button>
+              <button
+                pButton
+                type="button"
+                label="Cancelar"
+                (click)="cancel()"
+                icon="pi pi-times"
+                class="p-button-secondary"
+              ></button>
+            </div>
+          </div>
+        </p-card>
+      </form>
+    </div>
+  </div>
+  
