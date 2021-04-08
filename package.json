@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "heroku-postbuild": "ng build --prod"
+    "postinstall": "ng build --aot --prod"
   },
   "private": true,
   "dependencies": {
@@ -25,12 +25,14 @@
     "angularx-social-login": "^3.5.4",
     "bootstrap": "^4.6.0",
     "cpf-cnpj-validator": "^1.0.3",
+    "express": "^4.17.1",
     "file-saver": "^2.0.5",
     "jquery": "^3.5.1",
     "jspdf": "^2.3.1",
     "jspdf-autotable": "^3.5.14",
     "jwt-decode": "^3.1.2",
     "ngx-mask": "^11.1.4",
+    "path": "^0.12.7",
     "primeflex": "^2.0.0",
     "primeicons": "^4.1.0",
     "primeng": "^11.2.3",
@@ -46,6 +48,7 @@
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.0",
+    "enhanced-resolve": "^3.3.0",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~5.1.0",
