@@ -41,6 +41,14 @@ export class LoginComponent implements OnInit, OnDestroy {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
     });
+
+    this.unsubSocial = this.authService.authState.subscribe((user) => {
+      const googleUser = user;
+      if (googleUser) {
+        this.authService.signOut(true);
+        return;
+      }
+    });
   }
 
   ngOnDestroy(){
