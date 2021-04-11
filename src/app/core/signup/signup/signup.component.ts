@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SignupService } from '../../../shared/services/signup.service';
@@ -6,19 +6,22 @@ import { SocialAuthService } from "angularx-social-login";
 import { GoogleLoginProvider } from "angularx-social-login";
 import { FormValidations } from 'src/app/shared/functions/form-validations';
 import { Message } from 'primeng/api';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss'],
 })
-export class SignupComponent implements OnInit {
+export class SignupComponent implements OnInit, OnDestroy {
   form: FormGroup;
   status = false;
 
   message: Message[];
   load = false;
   emailRegistered = false;
+
+  unsubSocial: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -31,6 +34,10 @@ export class SignupComponent implements OnInit {
     this.form = this.fb.group({
 			email: ['', [Validators.required, Validators.email]]
 		});
+  }
+
+  ngOnDestroy(){
+    this.unsubSocial && this.unsubSocial.unsubscribe();
   }
 
   applyInputError(input) {
@@ -93,8 +100,9 @@ export class SignupComponent implements OnInit {
   }
 
   submitSocial(): void {
+    this.unsubSocial && this.unsubSocial.unsubscribe();
     this.authService.signIn(GoogleLoginProvider.PROVIDER_ID);
-    this.authService.authState.subscribe((user) => {
+    this.unsubSocial = this.authService.authState.subscribe((user) => {
       this.signupService.queueSocial(user)
       .subscribe(
         response => {
