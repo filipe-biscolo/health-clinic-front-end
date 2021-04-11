@@ -11,7 +11,7 @@
         <ng-template pTemplate="header">
           <div class="row pt-2">
             <div class="col-md-6">
-              <h4>{{titlePage}}</h4>
+              <h4>{{titlePage}}<i class="pi pi-spin pi-spinner ml-2" style="font-size: 1.2rem;" *ngIf="loadForm"></i></h4>
             </div>
           </div>
         </ng-template>
@@ -23,13 +23,13 @@
             <input id="cpf" type="text" formControlName="cpf" mask="000.000.000-00" [ngClass]="applyInputError('person.cpf')" pInputText />
             <app-error-message [control]="form.get('person.cpf')" label="CPF"></app-error-message>
           </div>
-          <div class="col-6 col-md-4">
+          <div class="col-12 col-md-4">
             <label for="rg">RG</label>
             <input id="rg" type="text" formControlName="rg" [ngClass]="applyInputError('person.cpf')" pInputText />
             <app-error-message [control]="form.get('person.rg')" label="RG"></app-error-message>
           </div>
         </ng-container>
-          <div class="col-6 col-md-4">
+          <div class="col-12 col-md-4">
             <label for="sus_number">Cartão SUS</label>
             <input id="sus_number" type="text" formControlName="sus_number" pInputText />
           </div>
@@ -42,7 +42,7 @@
               <input id="name" type="text" formControlName="name" [ngClass]="applyInputError('person.name')" pInputText />
               <app-error-message [control]="form.get('person.name')" label="Nome"></app-error-message>
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="sex">Sexo</label>
               <p-dropdown
                 inputId="sex"
@@ -53,7 +53,7 @@
                 formControlName="sex"
               ></p-dropdown>
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="birth_date">Data de nascimento</label>
               <input
                 id="birth_date"
@@ -63,7 +63,7 @@
                 pInputText
               />
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="marital_status">Estado civil</label>
               <p-dropdown
                 inputId="marital_status"
@@ -92,12 +92,12 @@
               ></p-dropdown>
             </div>
             <ng-container formGroupName="person">
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="phone">Telefone</label>
               <input id="phone" type="text" formControlName="phone" [mask]="phoneMask" [ngClass]="applyInputError('person.phone')" pInputText />
               <app-error-message [control]="form.get('person.phone')" label="Telefone"></app-error-message>
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="phone_aux">Telefone auxiliar</label>
               <input
                 id="phone_aux"
@@ -195,7 +195,8 @@
               pButton
               type="submit"
               label="Salvar"
-              icon="pi pi-check"
+              [icon]="!load ? 'pi pi-check' : 'pi pi-spin pi-spinner'"
+              [disabled]="load"
               class="p-button-success mr-2"
             ></button>
             <button
@@ -203,6 +204,7 @@
               type="button"
               label="Cancelar"
               (click)="cancel()"
+              [disabled]="load"
               icon="pi pi-times"
               class="p-button-secondary"
             ></button>

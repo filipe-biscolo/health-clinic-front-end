@@ -10,7 +10,7 @@
       <ng-template pTemplate="header">
         <div class="row pt-2">
           <div class="col-md-6">
-            <h4>{{ titlePage }}</h4>
+            <h4>{{ titlePage }}<i class="pi pi-spin pi-spinner ml-2" style="font-size: 1.2rem;" *ngIf="loadForm"></i></h4> 
           </div>
         </div>
       </ng-template>
@@ -77,7 +77,7 @@
                 label="Nome"
               ></app-error-message>
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="sex">Sexo</label>
               <p-dropdown
                 inputId="sex"
@@ -88,7 +88,7 @@
                 formControlName="sex"
               ></p-dropdown>
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="birth_date">Data de nascimento</label>
               <input
                 id="birth_date"
@@ -98,7 +98,7 @@
                 pInputText
               />
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="marital_status">Estado civil</label>
               <p-dropdown
                 inputId="marital_status"
@@ -127,12 +127,12 @@
               emptyFilterMessage="Não encontrado"
             ></p-dropdown>
             <app-error-message
-                [control]="form.get('occupation_id')"
-                label="Cargo"
-              ></app-error-message>
+              [control]="form.get('occupation_id')"
+              label="Cargo"
+            ></app-error-message>
           </div>
           <ng-container formGroupName="person">
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="phone">Telefone</label>
               <input
                 id="phone"
@@ -147,7 +147,7 @@
                 label="Telefone"
               ></app-error-message>
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-12 col-md-4">
               <label for="phone_aux">Telefone auxiliar</label>
               <input
                 id="phone_aux"
@@ -213,7 +213,7 @@
                   label="E-mail"
                 ></app-error-message>
               </div>
-              <div class="col-6 col-md-4">
+              <div class="col-12 col-md-4">
                 <label for="password">Senha</label>
                 <input
                   id="password"
@@ -227,7 +227,7 @@
                   label="Senha"
                 ></app-error-message>
               </div>
-              <div class="col-6 col-md-4">
+              <div class="col-12 col-md-4">
                 <label for="conf_password">Confirme a senha</label>
                 <input
                   id="conf_password"
@@ -246,68 +246,168 @@
         </form>
       </ng-container>
 
-    <form [formGroup]="form" *ngIf="admin">
-      <div class="row mt-3">
-        <div class="col-md-12">
-          <h5>Convênios</h5>
+      <ng-container *ngIf="permissions === listPermissions.HP || admin">
+        <div class="row mt-3">
+          <div class="col-md-12">
+            <h5>Convênios</h5>
+          </div>
         </div>
-      </div>
 
-    <div class="p-fluid row pb-3">
-      <div class="col-12 col-md-4 mb-0">
-          <p-dropdown
-          inputId="hi"
-          placeholder="Selecionar..."
-          optionLabel="name"
-          [options]="healthInsurances"
-          optionValue="id"
-          formControlName="health_insurance_id"
-        ></p-dropdown>
-      </div>
-      <div class="float-right mt-auto">
-        <button
-          type="button"
-          pButton
-          pRipple
-          icon="pi pi-save"
-          (click)="submitHI()"
-          class="p-button-info"
-          pTooltip="Adicionar convênio"
-          tooltipPosition="left"
-        ></button>
-      </div>
-    </div>
-    </form>
-    <div class="row" *ngIf="admin">
-      <div class="col-md-12">
-      <p-table [columns]="cols" [value]="professionalHIs" [responsive]="true">
-        <ng-template pTemplate="header" let-columns>
-            <tr>
+        <div class="p-fluid row pb-3">
+          <div class="col-12 col-md-4 mb-0">
+            <p-dropdown
+              inputId="hi"
+              placeholder="Selecionar..."
+              optionLabel="name"
+              [options]="healthInsurances"
+              optionValue="id"
+              [(ngModel)]="health_insurance_id"
+              [disabled]="loadHI"
+            ></p-dropdown>
+          </div>
+          <div class="float-right mt-auto d-none d-md-block">
+            <button
+              type="button"
+              pButton
+              pRipple
+              [icon]="!loadHI ? 'pi pi-save' : 'pi pi-spin pi-spinner'"
+              [disabled]="loadHI"
+              (click)="submitHI()"
+              class="p-button-info"
+              pTooltip="Adicionar convênio"
+              tooltipPosition="left"
+            ></button>
+          </div>
+          <div class="col-12 btn-save-hi d-block d-md-none">
+            <button
+              type="button"
+              pButton
+              pRipple
+              [icon]="!loadHI ? 'pi pi-save' : 'pi pi-spin pi-spinner'"
+              [disabled]="loadHI"
+              (click)="submitHI()"
+              class="p-button-info"
+              pTooltip="Adicionar convênio"
+              tooltipPosition="left"
+            ></button>
+          </div>
+        </div>
+      <div class="row">
+        <div class="col-md-12" *ngIf="form.get('id').value; else newProfessionalHI">
+          <p-table
+            [columns]="cols"
+            [value]="professionalHIs"
+            [responsive]="true"
+          >
+            <ng-template pTemplate="header" let-columns>
+              <tr>
                 <th *ngFor="let col of cols">
-                    {{col.header}}
+                  {{ col.header }}
                 </th>
                 <th class="col-actions text-center">Ações</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-rowData let-columns="columns">
-            <tr>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+              <tr *ngIf="!loadTableHi">
                 <td *ngFor="let col of columns" [title]="rowData[col.field]">
-                    <span class="p-column-title">{{col.header}}</span>
-                    {{rowData[col.field]}}
+                  <span class="p-column-title">{{ col.header }}</span>
+                  {{ rowData[col.field] }}
                 </td>
                 <td class="col-actions text-center">
-                    <button (click)="confirmDelete(rowData['id'])" pButton pRipple type="button" pTooltip="Excluir" tooltipPosition="left" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"></button>
+                  <button
+                    (click)="deleteProfessionalHI(rowData['id'])"
+                    pButton
+                    pRipple
+                    type="button"
+                    pTooltip="Excluir"
+                    tooltipPosition="left"
+                    icon="pi pi-trash"
+                    class="p-button-rounded p-button-text p-button-danger"
+                  ></button>
                 </td>
-            </tr>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row" *ngIf="loadTableHi">
+                <div class="col-md-12 p-0 text-center">
+                    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                </div>
+            </div>
+            <div class="row" *ngIf="!loadTableHi && (!professionalHIs || professionalHIs.length <= 0)">
+                <div class="col-md-12 p-0 text-center">
+                    - Não há dados -
+                </div>
+            </div>
+              <p-paginator
+                class="d-none d-md-block"
+                [first]="first"
+                [rows]="rows"
+                [totalRecords]="totalRecords"
+                [rowsPerPageOptions]="rowsPerPageOptions"
+                [pageLinkSize]="4"
+                (onPageChange)="paginate($event)"
+              ></p-paginator>
+              <p-paginator
+                class="d-block d-md-none"
+                [first]="first"
+                [rows]="rows"
+                [totalRecords]="totalRecords"
+                (onPageChange)="paginate($event)"
+                [showFirstLastIcon]="false"
+                [showJumpToPageDropdown]="true"
+                [showPageLinks]="false"
+                currentPageReportTemplate="{currentPage} de {totalPages}"
+              ></p-paginator>
+            </ng-template>
+          </p-table>
+        </div>
+        <ng-template #newProfessionalHI>
+          <div class="col-md-12">
+            <p-table
+              [columns]="cols"
+              [value]="form.get('health_insurances').value"
+              [responsive]="true"
+            >
+              <ng-template pTemplate="header" let-columns>
+                <tr>
+                  <th *ngFor="let col of cols">
+                    {{ col.header }}
+                  </th>
+                  <th class="col-actions text-center">Ações</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr>
+                  <td *ngFor="let col of columns" [title]="rowData[col.field]">
+                    <span class="p-column-title">{{ col.header }}</span>
+                    {{ rowData[col.field] }}
+                  </td>
+                  <td class="col-actions text-center">
+                    <button
+                      (click)="deleteTemporaryProfessionalHI(rowData['id'])"
+                      pButton
+                      pRipple
+                      type="button"
+                      pTooltip="Excluir"
+                      tooltipPosition="left"
+                      icon="pi pi-trash"
+                      class="p-button-rounded p-button-text p-button-danger"
+                    ></button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="summary">
+              <div class="row" *ngIf="!form.get('health_insurances').value">
+                  <div class="col-md-12 p-0 text-center">
+                      - Não há dados -
+                  </div>
+              </div>
+              </ng-template>
+            </p-table>
+          </div>
         </ng-template>
-        <ng-template pTemplate="summary">
-            <p-paginator class="d-none d-md-block" [first]="first" [rows]="rows" [totalRecords]="totalRecords" [rowsPerPageOptions]="rowsPerPageOptions" [pageLinkSize]="4" (onPageChange)="paginate($event)"></p-paginator>
-            <p-paginator class="d-block d-md-none" [first]="first" [rows]="rows" [totalRecords]="totalRecords" (onPageChange)="paginate($event)" [showFirstLastIcon]="false" [showJumpToPageDropdown]="true" [showPageLinks]="false" currentPageReportTemplate="{currentPage} de {totalPages}"></p-paginator>
-        </ng-template>
-    </p-table>
-  </div>
-  </div>
-
+      </div>
+    </ng-container>
       <div class="row mt-3">
         <div class="col-md-12">
           <h5>Endereço</h5>
@@ -395,7 +495,8 @@
               pButton
               type="submit"
               label="Salvar"
-              icon="pi pi-check"
+              [disabled]="load"
+              [icon]="!load ? 'pi pi-check' : 'pi pi-spin pi-spinner'"
               class="p-button-success mr-2"
             ></button>
             <button
@@ -403,6 +504,7 @@
               type="button"
               label="Cancelar"
               (click)="cancel()"
+              [disabled]="load"
               icon="pi pi-times"
               class="p-button-secondary"
             ></button>

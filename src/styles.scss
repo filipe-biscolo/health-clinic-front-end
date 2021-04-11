@@ -1,17 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:ital,wght@1,300&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:ital,wght@1,300&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;700&display=swap");
 
-html, body { height: 100%; }
+html,
+body {
+  height: 100%;
+}
 // body { margin: 0; font-family: 'Ubuntu', sans-serif; }
 body {
   margin: 0;
-  font-family: 'Work Sans', sans-serif;
+  font-family: "Work Sans", sans-serif;
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-weight: 700;
-   }
+  }
 }
-.row {margin: 0!important;}
+.row {
+  margin: 0 !important;
+}
 
 .p-fluid.row [class^="col-md"],
 .p-fluid.row [class^="col"] {
@@ -22,19 +32,19 @@ body {
 }
 
 .card-form-public {
-    position: relative;
-    display: -ms-flexbox;
-    display: flex;
-    padding: 1rem;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    width: 100%;
-    pointer-events: auto;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #f7f7f7;
-    border-radius: 4px;
-    outline: 0;
+  position: relative;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 1rem;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #f7f7f7;
+  border-radius: 4px;
+  outline: 0;
 }
 
 .p-card.p-component {
@@ -59,12 +69,12 @@ body {
     }
   }
   .p-card-content {
-    padding-top: 0!important;
+    padding-top: 0 !important;
   }
 }
 
 .btn-block .p-button-label {
-  flex: none!important;
+  flex: none !important;
 }
 
 .btn-primary-hc.p-button,
@@ -75,49 +85,54 @@ p-button.btn-primary-hc .p-component {
   &:hover,
   &:focus,
   &:active {
-      background-color: #75b1cc!important;
-      border-color: #75b1cc!important;
-      outline: none;
-      box-shadow: none;
+    background-color: #75b1cc !important;
+    border-color: #75b1cc !important;
+    outline: none;
+    box-shadow: none;
   }
 }
 
 input.p-inputtext,
-.p-dropdown.p-component, .p-inputtextarea {
+.p-dropdown.p-component,
+.p-inputtextarea {
   &:hover,
   &:focus,
   &:active {
-    outline: none!important;
-    box-shadow: none!important;
+    outline: none !important;
+    box-shadow: none !important;
     // border-color: inherit!important;
     // -webkit-box-shadow: none!important;
     // box-shadow: none!important;
   }
 }
 
-th,td {
-  padding: 5px!important;
+th,
+td {
+  padding: 5px !important;
 }
 
 .col-actions {
   width: 90px;
 }
 
-.table-schedule .col-actions {
-  width: 130px;
+.table-schedule,
+.table-patients {
+  .col-actions {
+    width: 130px;
+  }
 }
 
 .p-datatable {
-  &.p-datatable-responsive .p-datatable-tbody>tr>td {
+  &.p-datatable-responsive .p-datatable-tbody > tr > td {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
   .p-datatable-header {
-    background: #fff!important;
-    border: none!important;
-    padding: 0 0 10px 0!important;
-  
+    background: #fff !important;
+    border: none !important;
+    padding: 0 0 10px 0 !important;
+
     .actions {
       padding: 0;
     }
@@ -127,13 +142,13 @@ th,td {
     }
   }
   .p-datatable-thead > tr > th {
-    background: #f7f7f7!important;
+    background: #f7f7f7 !important;
   }
 
   .p-datatable-footer {
-    padding: 10px 0 0!important;
-    background: #fff!important;
-    border: none!important;
+    padding: 10px 0 0 !important;
+    background: #fff !important;
+    border: none !important;
 
     .p-paginator {
       justify-content: flex-end;
@@ -141,7 +156,6 @@ th,td {
     }
   }
 }
-
 
 @media screen and (max-width: 40rem) {
   .p-card {
@@ -151,7 +165,7 @@ th,td {
       }
     }
   }
-  
+
   .p-datatable {
     .p-datatable-tbody > tr {
       border-top: 1px solid #e9ecef;
@@ -159,11 +173,19 @@ th,td {
     }
 
     .p-datatable-footer {
-      border-top: 1px solid #e9ecef!important;
+      border-top: 1px solid #e9ecef !important;
 
       .p-paginator {
         justify-content: center;
       }
     }
-  } 
+  }
+
+  .p-toast {
+    width: 98vw!important;
+    &.p-toast-top-right {
+      right: 4px;
+      top: 5px;
+    }
+  }
 }

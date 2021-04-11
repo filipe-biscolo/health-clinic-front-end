@@ -27,6 +27,9 @@ export class ProfessionalsComponent implements OnInit {
   rows = this.rowsPerPageOptions[0];
   first = 0;
 
+  load = false;
+  loadExport = false;
+
   constructor(
     private professionalService: ProfessionalService,
     private loginService: LoginService,
@@ -50,14 +53,17 @@ export class ProfessionalsComponent implements OnInit {
   }
 
   listProfessionals() {
+    this.load = true;
     this.professionalService
       .getProfessionals(this.idClinic, this.page, this.rows)
       .subscribe(
         (response) => {
+          this.load = false;
           this.professionals = response.professionals;
           this.totalRecords = response.totalCount;
         },
         (error) => {
+          this.load = false;
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
@@ -101,12 +107,20 @@ export class ProfessionalsComponent implements OnInit {
   deleteProfessional(id: string) {
     this.professionalService.deleteProfessional(id).subscribe(
       (response) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Profissional excluido com sucesso!',
-        });
-        this.refresh();
+        if(response.status === true){
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Profissional excluido com sucesso!',
+          });
+          this.refresh();
+        } else {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Alerta',
+            detail: 'Profissional com ligações, não é possível excluí-lo!',
+          });
+        }
       },
       (error) => {
         this.messageService.add({
@@ -118,11 +132,23 @@ export class ProfessionalsComponent implements OnInit {
     );
   }
 
-  exportPdf() {
-    FormUtils.exportPdf('professionals', this.exportColumns, this.professionals);
-  }
-
   exportExcel() {
-    FormUtils.exportExcel('professionals', this.professionals);
+    this.loadExport = true;
+    this.professionalService
+    .getProfessionalsExport(this.idClinic)
+    .subscribe(
+      (response) => {
+        FormUtils.exportExcel('professionals', response);
+        this.loadExport = false;
+      },
+      (error) => {
+        this.loadExport = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao buscar profissionais',
+        });
+      }
+    );
   }
 }

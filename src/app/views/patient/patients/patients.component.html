@@ -1,69 +1,159 @@
 <div class="row">
-    <div class="col-md-12 p-0 mb-3">
-        <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
-    </div>
+  <div class="col-md-12 p-0 mb-3">
+    <p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+  </div>
 </div>
 
 <div class="row">
-    <div class="col-md-12 p-0">
-        <p-card>
-            <ng-template pTemplate="header">
-                <div class="row">
-                    <div class="col-12 col-md-6 title my-auto">
-                        <h4 class="m-0">Lista de pacientes</h4>
-                    </div>
-                    <div class="col-12 col-md-6 buttons">
-                        <button type="button" pButton pRipple icon="pi pi-refresh" (click)="refresh()" class="p-button-sm p-mr-2"  pTooltip="Atualizar lista" tooltipPosition="left"></button>
-                        <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()" class="p-button-danger p-button-sm p-mr-2"  pTooltip="Exportar dados para XLS" tooltipPosition="left"></button>
-                        <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success p-button-sm p-mr-2"  pTooltip="Exportar dados para XLS" tooltipPosition="left"></button>
-                        <button type="button" pButton pRipple icon="pi pi-plus" [routerLink]="['/patients/new']" class="btn-primary-hc p-button-sm" pTooltip="Adicionar paciente" tooltipPosition="left"></button>
-                    </div>
-                </div>
-            </ng-template>
-           <p-table [columns]="cols" [value]="patients" [responsive]="true">
-            <ng-template pTemplate="header" let-columns>
-                <tr>
-                    <th *ngFor="let col of cols">
-                        {{col.header}}
-                    </th>
-                    <th class="col-actions text-center">Ações</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-rowData let-columns="columns">
-                <tr>
-                    <td *ngFor="let col of columns" [title]="rowData[col.field]">
-                        <span class="p-column-title">{{col.header}}</span>
-                        <ng-container [ngSwitch]="col.field">
-                          <ng-container *ngSwitchCase="'birth_date'">
-                            {{ rowData[col.field] | personAge }}
-                          </ng-container>
-                          <ng-container *ngSwitchCase="'sex'">
-                            {{ rowData[col.field] | personSex }}
-                          </ng-container>
-                          <ng-container *ngSwitchCase="'cpf'">
-                            {{ rowData[col.field] | cpfCpnjMask }}
-                          </ng-container>
-                          <ng-container *ngSwitchCase="'phone'">
-                            {{ rowData[col.field] | phoneMask }}
-                          </ng-container>
-                          <ng-container *ngSwitchDefault>
-                            {{ rowData[col.field] ? rowData[col.field] : "-" }}
-                          </ng-container>
-                        </ng-container>
-                      </td>
-                    <td class="col-actions text-center">
-                        <button (click)="editPatient(rowData['id'])" pButton pRipple type="button" pTooltip="Editar" tooltipPosition="left" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-secondary"></button>
-                        <button (click)="confirmDelete(rowData['id'])" pButton pRipple type="button"  pTooltip="Excluir" tooltipPosition="left" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"></button>
-                    </td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="summary">
-                <p-paginator class="d-none d-md-block" [first]="first" [rows]="rows" [totalRecords]="totalRecords" [rowsPerPageOptions]="rowsPerPageOptions" [pageLinkSize]="4" (onPageChange)="paginate($event)"></p-paginator>
-                <p-paginator class="d-block d-md-none" [first]="first" [rows]="rows" [totalRecords]="totalRecords" (onPageChange)="paginate($event)" [showFirstLastIcon]="false" [showJumpToPageDropdown]="true" [showPageLinks]="false" currentPageReportTemplate="{currentPage} de {totalPages}"></p-paginator>
-            </ng-template>
-        </p-table>
+  <div class="col-md-12 p-0">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="row">
+          <div class="col-12 col-md-6 title my-auto">
+            <h4 class="m-0">Lista de pacientes</h4>
+          </div>
+          <div class="col-12 col-md-6 buttons">
+            <button
+              type="button"
+              pButton
+              pRipple
+              icon="pi pi-refresh"
+              (click)="refresh()"
+              class="p-button-sm p-mr-2"
+              pTooltip="Atualizar lista"
+              tooltipPosition="left"
+            ></button>
+            <button
+              type="button"
+              pButton
+              pRipple
+              [icon]="!loadExport ? 'pi pi-file-excel' : 'pi pi-spin pi-spinner'"
+              [disabled]="loadExport"
+              (click)="exportExcel()"
+              class="p-button-success p-button-sm p-mr-2"
+              pTooltip="Exportar dados para XLS"
+              tooltipPosition="left"
+            ></button>
+            <button
+              type="button"
+              pButton
+              pRipple
+              icon="pi pi-plus"
+              [routerLink]="['/patients/new']"
+              class="btn-primary-hc p-button-sm"
+              pTooltip="Adicionar paciente"
+              tooltipPosition="left"
+            ></button>
+          </div>
+        </div>
+      </ng-template>
+      <p-table
+        class="table-patients"
+        [columns]="cols"
+        [value]="patients"
+        [responsive]="true"
+      >
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of cols">
+              {{ col.header }}
+            </th>
+            <th class="col-actions text-center">Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr *ngIf="!load">
+            <td *ngFor="let col of columns" [title]="rowData[col.field]">
+              <span class="p-column-title">{{ col.header }}</span>
+              <ng-container [ngSwitch]="col.field">
+                <ng-container *ngSwitchCase="'birth_date'">
+                  {{ rowData[col.field] | personAge }}
+                </ng-container>
+                <ng-container *ngSwitchCase="'sex'">
+                  {{ rowData[col.field] | personSex }}
+                </ng-container>
+                <ng-container *ngSwitchCase="'cpf'">
+                  {{ rowData[col.field] | cpfCpnjMask }}
+                </ng-container>
+                <ng-container *ngSwitchCase="'phone'">
+                  {{ rowData[col.field] | phoneMask }}
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  {{ rowData[col.field] ? rowData[col.field] : "-" }}
+                </ng-container>
+              </ng-container>
+            </td>
+            <td class="col-actions text-center">
+              <button
+                (click)="viewAttendances(rowData['id'])"
+                pButton
+                pRipple
+                type="button"
+                pTooltip="Prontuário"
+                tooltipPosition="left"
+                icon="pi pi-book"
+                class="p-button-rounded p-button-text"
+              ></button>
+              <button
+                (click)="editPatient(rowData['id'])"
+                pButton
+                pRipple
+                type="button"
+                pTooltip="Editar"
+                tooltipPosition="left"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-text p-button-secondary"
+              ></button>
+              <button
+                (click)="confirmDelete(rowData['id'])"
+                pButton
+                pRipple
+                type="button"
+                pTooltip="Excluir"
+                tooltipPosition="left"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+          <div class="row" *ngIf="load">
+            <div class="col-md-12 p-0 text-center">
+              <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+            </div>
+          </div>
+          <div class="row" *ngIf="!load && (!patients || patients.length <= 0)">
+            <div class="col-md-12 p-0 text-center">- Não há dados -</div>
+          </div>
+          <p-paginator
+            class="d-none d-md-block"
+            [first]="first"
+            [rows]="rows"
+            [totalRecords]="totalRecords"
+            [rowsPerPageOptions]="rowsPerPageOptions"
+            [pageLinkSize]="4"
+            (onPageChange)="paginate($event)"
+          ></p-paginator>
+          <p-paginator
+            class="d-block d-md-none"
+            [first]="first"
+            [rows]="rows"
+            [totalRecords]="totalRecords"
+            (onPageChange)="paginate($event)"
+            [showFirstLastIcon]="false"
+            [showJumpToPageDropdown]="true"
+            [showPageLinks]="false"
+            currentPageReportTemplate="{currentPage} de {totalPages}"
+          ></p-paginator>
+        </ng-template>
+      </p-table>
     </p-card>
-    </div>
+  </div>
 </div>
 
-<p-confirmDialog [style]="{width: '400px'}" [baseZIndex]="5000" [closable]="false"></p-confirmDialog>
+<p-confirmDialog
+  [style]="{ width: '400px' }"
+  [baseZIndex]="5000"
+  [closable]="false"
+></p-confirmDialog>

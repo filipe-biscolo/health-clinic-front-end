@@ -4,22 +4,12 @@ import { MessageService } from 'primeng/api';
 import { FormValidations } from 'src/app/shared/functions/form-validations';
 import { HealthInsuranceService } from '../../../shared/services/health-insurance.service';
 import { PatientService } from '../../../shared/services/patient.service';
-import { ProcedureService } from '../../../shared/services/procedure.service';
 import { ScheduleService } from '../../../shared/services/schedule.service';
+import { Permissions } from '../../../shared/enums/permissions';
+import { SchedulingStatus, SchedulingStatusDesc, ResponseScheduling } from '../../../shared/enums/scheduling';
 
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-
-enum SchedulingStatus {
-  SCHEDULED = "SCHEDULED",
-  CONFIRMED = "CONFIRMED",
-  CANCELED = "CANCELED",
-  FINISHED = "FINISHED",
-}
-
-enum ResponseScheduling {
-  DEFAULT = "DEFAULT",
-  REFRESH = "REFRESH"
-}
+import { LoginService } from 'src/app/shared/services/login.service';
 
 enum StatesModal {
     VIEW = "VIEW",
@@ -39,29 +29,49 @@ export class SchedulingComponent implements OnInit, OnChanges {
   @Input() procedures: any[];
   @Output() closeScheduling = new EventEmitter();
 
+  public headerIdProfessional = this.loginService.getIdProfessional();
+  public permissions = this.loginService.getPermissions();
+  public admin = this.loginService.getAdmin();
+
   form: FormGroup;
   titleModal = 'Novo agendamento';
 
   schedulingStatus = SchedulingStatus;
   patients: any[];
   healthInsurances: any[];
+  filteredHealthInsurances: any[];
 
   statesModal = StatesModal;
-  stateModal;
+  stateModal: string;
 
   width = '60vw';
   height = 'auto';
+
+  load = false;
+  loadConfirm = false;
+  loadCancel = false;
+  loadForm = false;
 
   constructor(
     private formBuilder: FormBuilder,
     private scheduleService: ScheduleService,
     private healthInsuranceService: HealthInsuranceService,
     private patientService: PatientService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private loginService: LoginService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
+
+    this.form.get('professional_id').valueChanges
+      .pipe(
+        distinctUntilChanged(),
+        debounceTime(500)
+      )
+      .subscribe(response => {
+        this.searchHIProfessionals(response);
+      });
 
     this.form.get('patient_id').valueChanges
       .pipe(
@@ -71,7 +81,7 @@ export class SchedulingComponent implements OnInit, OnChanges {
       .subscribe(response => {
         if(response && this.form.status !== "DISABLED") {
           const patient = this.patients.find(patient => patient.id === response);
-          if(patient.health_insurance_id) {
+          if(patient.health_insurance_id && this.filteredHealthInsurances && this.filteredHealthInsurances.length > 0) {
             this.form.get('has_health_insurance').setValue(true);
             this.form.get('health_insurance_id').setValue(patient.health_insurance_id);
           }
@@ -91,8 +101,28 @@ export class SchedulingComponent implements OnInit, OnChanges {
       const mq = window.matchMedia('(max-width: 40rem)');
       if(mq.matches){
         this.width = '100vw';
-        // this.height = '100%';
       }
+  }
+
+  searchHIProfessionals(idProfessional){
+    if(idProfessional && this.professionals){
+      this.filteredHealthInsurances = [];
+      const professional = this.professionals.find(p => p.id === idProfessional);
+      this.healthInsurances.forEach(hi => {
+        const exist = professional.health_insurances.find(item => item.health_insurance_id === hi.id);
+        if(exist){
+          this.filteredHealthInsurances.push(hi);
+        }
+      });
+      if(idProfessional && this.form.status !== "DISABLED") {
+        if(!this.filteredHealthInsurances || this.filteredHealthInsurances.length <= 0){
+          this.form.get('has_health_insurance').setValue(false);
+          this.form.get('has_health_insurance').disable();
+        } else {
+          this.form.get('has_health_insurance').enable();
+        }
+      }
+    }
   }
 
   @HostListener('window:resize', ['$event'])
@@ -100,7 +130,6 @@ export class SchedulingComponent implements OnInit, OnChanges {
     const mq = window.matchMedia('(max-width: 40rem)');
     if(mq.matches){
       this.width = '100vw';
-      // this.height = '100%';
     } else {
       this.width = '50vw';
     }
@@ -130,6 +159,11 @@ export class SchedulingComponent implements OnInit, OnChanges {
     this.form.get('scheduling_status').setValue(this.schedulingStatus.SCHEDULED);
     this.form.get('has_health_insurance').setValue(false);
     this.form.get('health_insurance_id').disable();
+
+    if(this.permissions === Permissions.HP){
+      !this.admin && this.form.get('professional_id').disable();
+      this.form.get('professional_id').setValue(this.headerIdProfessional);
+    }
   }
 
   dateNowHTML(dateForm?){
@@ -147,13 +181,11 @@ export class SchedulingComponent implements OnInit, OnChanges {
           
         }
         if(change === 'idScheduling' && this.idScheduling){
-          // this.initForm();
+          this.loadForm = true;
           this.scheduleService.getSchedulingById(this.idClinic, this.idScheduling).subscribe(
             scheduling => {
-              console.log('professional', scheduling)
               this.form.disable();
               this.stateModal = this.statesModal.VIEW;
-              this.titleModal = 'Visualizar agendamento';
               scheduling.date_hour = this.dateNowHTML(scheduling.date_hour);
               scheduling.date = this.dateNowHTML(scheduling.date_hour).substr(0,10);
               scheduling.hour = this.dateNowHTML(scheduling.date_hour).substr(11,16);
@@ -162,8 +194,10 @@ export class SchedulingComponent implements OnInit, OnChanges {
                 ...scheduling
               });
               this.form.get('health_insurance_id').disable();
+              this.loadForm = false;
             },
             error => {
+              this.loadForm = false;
               this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar profissional'});
             }
           );
@@ -180,6 +214,10 @@ export class SchedulingComponent implements OnInit, OnChanges {
       this.form.get('date').setValue(this.dateNowHTML().substr(0,10));
       this.form.get('hour').setValue(this.dateNowHTML().substr(11,16));
     }
+    if(this.permissions === Permissions.HP){
+      this.searchHIProfessionals(this.headerIdProfessional);
+    }
+    this.idScheduling && (this.titleModal = `Visualizar agendamento (${SchedulingStatusDesc[this.form.get('scheduling_status').value]})`);
   }
 
   onHide(e) {
@@ -204,7 +242,6 @@ export class SchedulingComponent implements OnInit, OnChanges {
     this.healthInsuranceService.getHealthInsurancesAll(this.idClinic).subscribe(
       (response) => {
         this.healthInsurances = response;
-        console.log(response);
       },
       (error) => {
         console.error(error);
@@ -238,16 +275,20 @@ export class SchedulingComponent implements OnInit, OnChanges {
     this.form.enable();
     this.stateModal = this.statesModal.EDIT;
     this.titleModal = "Editar agendamento";
+
+    if(this.permissions === Permissions.HP && !this.admin){
+      this.form.get('professional_id').disable();
+    }
+
+    if(!this.filteredHealthInsurances || this.filteredHealthInsurances.length <= 0){
+      this.form.get('has_health_insurance').disable();
+      this.form.get('health_insurance_id').disable();
+    } else {
+      this.form.get('has_health_insurance').enable();
+    }
   }
 
-  onSubmit() {
-    console.log('this.form', this.form.value)
-
-    if (!this.form.valid) {
-      FormValidations.verifyValidationsForm(this.form);
-      return;
-    }
-    
+  dateTemplate(){
     const dateHour = `${this.form.get('date').value}T${this.form.get('hour').value}:01`;
     console.log('dateHour', dateHour)
     const procedure = this.procedures.find(proc => proc.id === this.form.get('procedure_id').value);
@@ -258,13 +299,22 @@ export class SchedulingComponent implements OnInit, OnChanges {
 
     this.form.get('date_hour').setValue(dateHour);
     this.form.get('date_hour_end').setValue(dateHourEnd);
+  }
 
-    const values = this.form.value;
+  onSubmit() {
+    if (!this.form.valid) {
+      FormValidations.verifyValidationsForm(this.form);
+      return;
+    }
     
+    this.dateTemplate();
+
+    const values = this.form.getRawValue();
+    this.load = true;
     if (values.id) {
       this.scheduleService.putScheduling(values).subscribe(
         (response) => {
-          console.log('Sucesso', response);
+          this.load = false;
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
@@ -273,6 +323,7 @@ export class SchedulingComponent implements OnInit, OnChanges {
           this.closeScheduling.emit(ResponseScheduling.REFRESH);
         },
         (error) => {
+          this.load = false;
           if(error.status === 409) {
             this.messageService.add({
               severity: 'warn',
@@ -289,9 +340,11 @@ export class SchedulingComponent implements OnInit, OnChanges {
         }
       );
     } else {
+      console.log('values', values);
       values.clinic_id = this.idClinic;
       this.scheduleService.postScheduling(values).subscribe(
         (response) => {
+          this.load = false;
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
@@ -300,6 +353,7 @@ export class SchedulingComponent implements OnInit, OnChanges {
           this.closeScheduling.emit(ResponseScheduling.REFRESH);
         },
         (error) => {
+          this.load = false;
           if(error.status === 409) {
             this.messageService.add({
               severity: 'warn',
@@ -316,5 +370,58 @@ export class SchedulingComponent implements OnInit, OnChanges {
         }
       );
     }
+  }
+
+  confirmScheduling(){
+    this.form.get('scheduling_status').setValue(this.schedulingStatus.CONFIRMED);
+    this.dateTemplate();
+    const values = this.form.getRawValue();
+    this.loadConfirm = true;
+    this.scheduleService.putScheduling(values).subscribe(
+      (response) => {
+        this.loadConfirm = false;
+        console.log('Sucesso', response);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Agendamento confirmado!',
+        });
+        this.closeScheduling.emit(ResponseScheduling.REFRESH);
+      },
+      (error) => {
+        this.loadConfirm = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao confirmar agendamento',
+        });
+      }
+    );
+  }
+
+  cancelScheduling(){
+    this.form.get('scheduling_status').setValue(this.schedulingStatus.CANCELED);
+    this.dateTemplate();
+    const values = this.form.getRawValue();
+    this.loadCancel = true;
+    this.scheduleService.putScheduling(values).subscribe(
+      (response) => {
+        this.loadCancel = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Agendamento cancelado!',
+        });
+        this.closeScheduling.emit(ResponseScheduling.REFRESH);
+      },
+      (error) => {
+        this.loadCancel = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao cancelar agendamento',
+        });
+      }
+    );
   }
 }

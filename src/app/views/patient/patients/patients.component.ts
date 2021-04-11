@@ -25,6 +25,9 @@ export class PatientsComponent implements OnInit {
   rows = this.rowsPerPageOptions[0];
   first = 0;
 
+  load = false;
+  loadExport = false;
+
   constructor(
     private patientService: PatientService,
     private loginService: LoginService,
@@ -49,14 +52,17 @@ export class PatientsComponent implements OnInit {
   }
 
   listPatients() {
+    this.load = true;
     this.patientService
       .getPatients(this.idClinic, this.page, this.rows)
       .subscribe(
         (response) => {
           this.patients = response.patients;
           this.totalRecords = response.totalCount;
+          this.load = false;
         },
         (error) => {
+          this.load = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar pacientes'});
         }
       );
@@ -76,7 +82,6 @@ export class PatientsComponent implements OnInit {
   }
 
   editPatient(id: string) {
-    console.log('id', id)
     this.router.navigate(['/patients', 'edit', id]);
   }
 
@@ -97,13 +102,20 @@ export class PatientsComponent implements OnInit {
   deletePatient(id: string) {
     this.patientService.deletePatient(id).subscribe(
       (response) => {
-        console.log(response);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Paciente excluido com sucesso!',
-        });
-        this.refresh();
+        if(response.status === true){
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Paciente excluido com sucesso!',
+          });
+          this.refresh();
+        } else {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Alerta',
+            detail: 'Paciente com ligações, não é possível excluí-lo!',
+          });
+        }
       },
       (error) => {
         console.error(error);
@@ -115,12 +127,24 @@ export class PatientsComponent implements OnInit {
       }
     );
   }
-  
-  exportPdf() {
-    FormUtils.exportPdf('patients', this.exportColumns, this.patients);
+
+  viewAttendances(id: string){
+    this.router.navigate(['/attendances', id])
   }
 
   exportExcel() {
-    FormUtils.exportExcel('patients', this.patients);
+    this.loadExport = true;
+    this.patientService
+    .getPatientsExport(this.idClinic)
+    .subscribe(
+      (response) => {
+        FormUtils.exportExcel('patients', response);
+        this.loadExport = false;
+      },
+      (error) => {
+        this.loadExport = false;
+        this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao buscar pacientes'});
+      }
+    );
   }
 }

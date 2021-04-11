@@ -58,18 +58,7 @@ export class FormUtils {
   static dateTimeHTML(dateForm?){
     let dateTime = dateForm ? new Date(dateForm) : new Date();
     dateTime.setMinutes(dateTime.getMinutes() - dateTime.getTimezoneOffset());
-    console.log('dateForm', dateTime);
     return dateTime.toISOString().slice(0,16);
-  }
-
-  static exportPdf(name, exportColumns, array) {
-    import("jspdf").then(jsPDF => {
-        import("jspdf-autotable").then(x => {
-            const doc = new jsPDF.default("portrait");
-            (doc as any).autoTable(exportColumns, array);
-            doc.save(`${name}.pdf`);
-        })
-    })
   }
 
   static exportExcel(name, array) {

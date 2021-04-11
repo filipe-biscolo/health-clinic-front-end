@@ -32,6 +32,9 @@ export class HealthInsurancesComponent implements OnInit {
   rows = this.rowsPerPageOptions[0];
   first = 0;
 
+  load = false;
+  loadExport = false;
+
   constructor(
     private healthInsuranceService: HealthInsuranceService,
     private loginService: LoginService,
@@ -49,12 +52,16 @@ export class HealthInsurancesComponent implements OnInit {
   }
   
   listHI() {
+    this.load = true;
     this.healthInsuranceService.getHealthInsurances(this.idClinic, this.page, this.rows).subscribe(
       (response) => {
+        
         this.healthInsurances = response.healthInsurances;
         this.totalRecords = response.totalCount;
+        this.load = false;
       },
       (error) => {
+        this.load = false;
                 this.messageService.add({
           severity: 'error',
           summary: 'Erro',
@@ -98,12 +105,20 @@ export class HealthInsurancesComponent implements OnInit {
   deleteHI(id: string) {
     this.healthInsuranceService.deleteHealthInsurance(id).subscribe(
       (response) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Convênio excluido com sucesso!',
-        });
-        this.refresh();
+        if(response.status === true){
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Convênio excluido com sucesso!',
+          });
+          this.refresh();
+        } else {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Alerta',
+            detail: 'Convênio em uso, não é possível excluí-lo!',
+          });
+        }
       },
       (error) => {
         this.messageService.add({
@@ -115,11 +130,21 @@ export class HealthInsurancesComponent implements OnInit {
     );
   }
 
-  exportPdf() {
-    FormUtils.exportPdf('healthInsurances', this.exportColumns, this.healthInsurances);
-  }
-
   exportExcel() {
-    FormUtils.exportExcel('healthInsurances', this.healthInsurances);
+    this.loadExport = true;
+    this.healthInsuranceService.getHealthInsurancesExport(this.idClinic).subscribe(
+      (response) => {
+        FormUtils.exportExcel('healthInsurances', response);
+        this.loadExport = false;
+      },
+      (error) => {
+        this.loadExport = false;
+                this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao buscar convênios',
+        });
+      }
+    );
   }
 }

@@ -24,6 +24,9 @@ export class OccupationComponent implements OnInit {
     { id: 'SE', label: 'Secretário' },
   ];
 
+  load = false;
+  loadForm = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private loginService: LoginService,
@@ -43,6 +46,7 @@ export class OccupationComponent implements OnInit {
 
     const id = this.activatedRoute.snapshot.params.id as string;
     if (!!id) {
+      this.loadForm = true;
       this.occupationService.getOccupationById(this.idClinic, id).subscribe(
         (occupation) => {
           this.titlePage = 'Editar cargo';
@@ -50,8 +54,10 @@ export class OccupationComponent implements OnInit {
           this.form.patchValue({
             ...occupation,
           });
+          this.loadForm = false;
         },
         (error) => {
+          this.loadForm = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar cargo'});
         }
       );
@@ -82,14 +88,16 @@ export class OccupationComponent implements OnInit {
     }
 
     const values = this.form.value;
-
+    this.load = true;
     if(values.id) {
       this.occupationService.putOccupation(values).subscribe(
         (response) => {
+          this.load = false;
           this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Cargo atualizado!' });
           this.router.navigate(['/occupations']);
         },
         (error) => {
+          this.load = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao atualizar cargo'});
         }
       );
@@ -97,10 +105,12 @@ export class OccupationComponent implements OnInit {
       values.clinic_id = this.idClinic;
       this.occupationService.postOccupation(values).subscribe(
         (response) => {
+          this.load = false;
           this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Cargo criado!' });
           this.router.navigate(['/occupations']);
         },
         (error) => {
+          this.load = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao criar cargo'});
         }
       );

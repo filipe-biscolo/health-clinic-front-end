@@ -3,9 +3,31 @@
 	width: 100%;
 }
 
+::ng-deep .filter .actions {
+	padding: 0;
+	
+	[class^='col'] {
+		margin-bottom: 0;
+		padding: 0 5px;
+	
+		&:first-child {
+			padding-left: 0;
+		}
+	}
+}
 
 @media screen and (max-width: 40rem) {
 	.chart-responsive {
 		height: 75vmin;
-	}	
+	}
+
+	::ng-deep .filter .actions {
+		[class^='col'] {
+			padding: 0 0 10px!important;
+		
+			button {
+				width: 100%;
+			}
+		}
+	}
 }

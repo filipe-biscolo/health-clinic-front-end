@@ -10,8 +10,17 @@
       <p-card>
         <ng-template pTemplate="header">
           <div class="row pt-2">
-            <div class="col-md-6">
-              <h4>{{ titlePage }} - {{ scheduling?.procedure.name }}</h4>
+            <div class="col-md-6 mb-2">
+              <h4>{{ titlePage }} ({{ scheduling?.procedure.name }})<i class="pi pi-spin pi-spinner ml-2" style="font-size: 1.2rem;" *ngIf="loadForm"></i></h4>
+            </div>
+            <div class="col-md-6 m-auto text-right">
+              <small><strong>Início:</strong> {{ scheduling?.date_hour | date: 'dd/MM/yyyy' }} às {{ scheduling?.date_hour | date: 'HH:mm' }}</small> |
+              <small *ngIf="!form.get('id').value">
+                <strong>Previsão de término:</strong> {{ scheduling?.date_hour_end | date: 'dd/MM/yyyy' }} às {{ scheduling?.date_hour_end | date: 'HH:mm' }}
+              </small>
+              <small *ngIf="form.get('id').value">
+                <strong>Término:</strong> {{ form.get('created_at').value | date: 'dd/MM/yyyy' }} às {{ form.get('created_at').value | date: 'HH:mm' }}
+              </small>
             </div>
           </div>
         </ng-template>
@@ -28,7 +37,7 @@
               {{
                 scheduling?.health_insurance?.name
                   ? scheduling.health_insurance.name
-                  : "Sem convênio"
+                  : "Particular"
               }}</small
             >
           </div>
@@ -118,12 +127,13 @@
         </div>
 
         <div class="row">
-          <div class="col-12 col-md-12 m-0 text-right">
+          <div class="col-12 col-md-12 m-0 text-right" *ngIf="!form.get('id').value">
             <button
               pButton
               type="submit"
               label="Finalizar"
-              icon="pi pi-check"
+              [icon]="!load ? 'pi pi-check' : 'pi pi-spin pi-spinner'"
+              [disabled]="load"
               class="p-button-success mr-2"
             ></button>
             <button
@@ -131,6 +141,36 @@
               type="button"
               label="Cancelar"
               (click)="cancel()"
+              [disabled]="load"
+              icon="pi pi-times"
+              class="p-button-secondary"
+            ></button>
+          </div>
+          <div class="col-12 col-md-12 m-0 text-right" *ngIf="form.get('id').value">
+            <button
+              pButton
+              type="submit"
+              label="Atualizar"
+              [icon]="!load ? 'pi pi-check' : 'pi pi-spin pi-spinner'"
+              [disabled]="load"
+              class="p-button-success mr-2"
+              *ngIf="stateForm === statesForm.EDIT"
+            ></button>
+            <button
+              pButton
+              type="button"
+              (click)="editAttendance()"
+              label="Editar"
+              icon="pi pi-pencil"
+              class="p-button-outlined mr-2"
+              *ngIf="stateForm === statesForm.VIEW"
+            ></button>
+            <button
+              pButton
+              type="button"
+              label="Cancelar"
+              (click)="cancel()"
+              [disabled]="load"
               icon="pi pi-times"
               class="p-button-secondary"
             ></button>

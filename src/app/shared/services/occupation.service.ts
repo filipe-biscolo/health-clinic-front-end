@@ -20,6 +20,10 @@ export class OccupationService {
   getOccupationsAll(idClinic: string):Observable<any[]> {
     return this.httpClient.get<any[]>(`${API}/occupations/all?clinic_id=${idClinic}`).pipe(take(1));
   }
+
+  getOccupationsExport(idClinic: string):Observable<any[]> {
+    return this.httpClient.get<any[]>(`${API}/occupations/export?clinic_id=${idClinic}`).pipe(take(1));
+  }
   
   getOccupationById(idClinic: string, idOccupation: string):Observable<any> {
     return this.httpClient.get<any>(`${API}/occupations/${idOccupation}?clinic_id=${idClinic}`).pipe(take(1));

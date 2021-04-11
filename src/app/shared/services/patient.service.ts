@@ -20,6 +20,10 @@ export class PatientService {
   getPatientsAll(idClinic: string):Observable<any[]> {
     return this.httpClient.get<any[]>(`${API}/patients/all?clinic_id=${idClinic}`).pipe(take(1));
   }
+
+  getPatientsExport(idClinic: string):Observable<any[]> {
+    return this.httpClient.get<any[]>(`${API}/patients/export?clinic_id=${idClinic}`).pipe(take(1));
+  }
   
   getPatientById(idClinic: string, idPatient: string):Observable<any> {
     return this.httpClient.get<any>(`${API}/patients/${idPatient}?clinic_id=${idClinic}`).pipe(take(1));

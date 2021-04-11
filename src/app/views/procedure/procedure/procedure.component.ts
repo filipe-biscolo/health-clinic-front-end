@@ -20,6 +20,9 @@ export class ProcedureComponent implements OnInit {
   titlePage = 'Novo procedimento';
   durationMask = '0999';
 
+  load = false;
+  loadForm = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private loginService: LoginService,
@@ -39,6 +42,7 @@ export class ProcedureComponent implements OnInit {
 
     const id = this.activatedRoute.snapshot.params.id as string;
     if (!!id) {
+      this.loadForm = true;
       this.procedureService.getProcedureById(this.idClinic, id).subscribe(
         (occupation) => {
           this.titlePage = 'Editar procedimento';
@@ -46,8 +50,10 @@ export class ProcedureComponent implements OnInit {
           this.form.patchValue({
             ...occupation,
           });
+          this.loadForm = false;
         },
         (error) => {
+          this.loadForm = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar procedimento'});
         }
       );
@@ -78,14 +84,16 @@ export class ProcedureComponent implements OnInit {
     }
 
     const values = this.form.value;
-
+    this.load = true;
     if(values.id) {
       this.procedureService.putProcedure(values).subscribe(
         (response) => {
+          this.load = false;
           this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Procedimento atualizado!' });
           this.router.navigate(['/procedures']);
         },
         (error) => {
+          this.load = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao atualizar procedimento'});
         }
       );
@@ -93,10 +101,12 @@ export class ProcedureComponent implements OnInit {
       values.clinic_id = this.idClinic;
       this.procedureService.postProcedure(values).subscribe(
         (response) => {
+          this.load = false;
           this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Procedimento criado!' });
           this.router.navigate(['/procedures']);
         },
         (error) => {
+          this.load = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao criar procedimento'});
         }
       );

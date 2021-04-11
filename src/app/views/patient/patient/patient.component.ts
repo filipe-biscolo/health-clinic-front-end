@@ -36,6 +36,9 @@ export class PatientComponent implements OnInit {
   phoneMask = '(00) 0000-00009';
   phoneMaskAux = '(00) 0000-00009';
 
+  load = false;
+  loadForm = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private loginService: LoginService,
@@ -80,6 +83,7 @@ export class PatientComponent implements OnInit {
 
     const id = this.activatedRoute.snapshot.params.id as string;
 		if (!!id) {
+      this.loadForm = true;
 			this.patientService.getPatientById(this.idClinic, id).subscribe(
 				patient => {
           this.titlePage = 'Editar paciente';
@@ -87,9 +91,10 @@ export class PatientComponent implements OnInit {
 					this.form.patchValue({
 						...patient
 					});
-
+          this.loadForm = false;
 				},
 				error => {
+          this.loadForm = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar paciente'});
 				}
 			);
@@ -129,15 +134,16 @@ export class PatientComponent implements OnInit {
     }
 
     const values = this.form.value;
-
+    this.load = true;
     if(values.id) {
       this.patientService.putPatient(values).subscribe(
         (response) => {
-          console.log('Sucesso', response);
+          this.load = false;
           this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Paciente atualizado!' });
           this.router.navigate(['/patients']);
         },
         (error) => {
+          this.load = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao atualizar paciente'});
         }
       );
@@ -145,10 +151,12 @@ export class PatientComponent implements OnInit {
       values.clinic_id = this.idClinic;
       this.patientService.postPatient(values).subscribe(
         (response) => {
+          this.load = false;
           this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Paciente criado!' });
           this.router.navigate(['/patients']);
         },
         (error) => {
+          this.load = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao criar paciente'});
         }
       );

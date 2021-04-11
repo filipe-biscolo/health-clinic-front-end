@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  API_URL: 'https://health-clinic-tcc-back-end.herokuapp.com',
+  API_URL: 'http://localhost:3000',
 
   g_client_id: '1047440820874-acsaelv1lfoif3d3pf205rjc6q96cq1f.apps.googleusercontent.com'
 };

@@ -5,7 +5,7 @@ import { SignupService } from '../../../shared/services/signup.service';
 import { SocialAuthService } from "angularx-social-login";
 import { GoogleLoginProvider } from "angularx-social-login";
 import { FormValidations } from 'src/app/shared/functions/form-validations';
-import { Message, MessageService } from 'primeng/api';
+import { Message } from 'primeng/api';
 
 @Component({
   selector: 'app-signup',

@@ -19,6 +19,9 @@ export class HealthInsuranceComponent implements OnInit {
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/schedule' };
   titlePage = 'Novo convênio';
 
+  load = false;
+  loadForm = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private loginService: LoginService,
@@ -37,6 +40,7 @@ export class HealthInsuranceComponent implements OnInit {
 
     const id = this.activatedRoute.snapshot.params.id as string;
     if (!!id) {
+      this.loadForm = true;
       this.healthInsuranceService.getHealthInsuranceById(this.idClinic, id).subscribe(
         (hi) => {
           this.titlePage = 'Editar convênio';
@@ -44,8 +48,10 @@ export class HealthInsuranceComponent implements OnInit {
           this.form.patchValue({
             ...hi,
           });
+          this.loadForm = false;
         },
         (error) => {
+          this.loadForm = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar convênio'});
         }
       );
@@ -76,14 +82,16 @@ export class HealthInsuranceComponent implements OnInit {
     }
 
     const values = this.form.value;
-
+    this.load = true;
     if(values.id) {
       this.healthInsuranceService.putHealthInsurance(values).subscribe(
         (response) => {
+          this.load = false;
           this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Convênio atualizado!' });
           this.router.navigate(['/health-insurances']);
         },
         (error) => {
+          this.load = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao atualizar convênio'});
         }
       );
@@ -91,10 +99,13 @@ export class HealthInsuranceComponent implements OnInit {
       values.clinic_id = this.idClinic;
       this.healthInsuranceService.postHealthInsurance(values).subscribe(
         (response) => {
+          this.load = false;
           this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Convênio criado!' });
           this.router.navigate(['/health-insurances']);
         },
         (error) => {
+          this.load = false;
+          this.form.enable();
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao criar convênio'});
         }
       );

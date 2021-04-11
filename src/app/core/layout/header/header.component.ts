@@ -74,7 +74,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   dataHeader() {
     this.loginService.getDataHeader(this.idUser, this.idClinic).subscribe(
       (response) => {
-        console.log('getDataHeader', response);
         this.userName = response.data.user_name;
         this.clinicName = response.data.clinic_name;
       },

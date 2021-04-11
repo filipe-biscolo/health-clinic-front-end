@@ -48,7 +48,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   submit(): void {
-    console.log(this.form.value);
     if (!this.form.valid) {
       FormValidations.verifyValidationsForm(this.form);
       return;
@@ -95,7 +94,6 @@ export class LoginComponent implements OnInit, OnDestroy {
             });
           },
           (error) => {
-            console.log(error);
             this.loadSocial = false;
             this.errorType = 'social';
             this.authService.signOut(true);

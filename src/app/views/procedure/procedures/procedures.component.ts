@@ -32,6 +32,9 @@ export class ProceduresComponent implements OnInit {
   rows = this.rowsPerPageOptions[0];
   first = 0;
 
+  load = false;
+  loadExport = false;
+
   constructor(
     private procedureService: ProcedureService,
     private loginService: LoginService,
@@ -52,13 +55,16 @@ export class ProceduresComponent implements OnInit {
   }
 
   listProcedures() {
+    this.load = true;
     this.procedureService.getProcedures(this.idClinic, this.page, this.rows).subscribe(
       (response) => {
         this.procedures = response.procedures;
         this.procedures.map(proc => proc.duration = `${proc.duration} minutos`);
         this.totalRecords = response.totalCount;
+        this.load = false;
       },
       (error) => {
+        this.load = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
@@ -102,12 +108,20 @@ export class ProceduresComponent implements OnInit {
   deleteProcedure(id: string) {
     this.procedureService.deleteProcedure(id).subscribe(
       (response) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Procedimento excluido com sucesso!',
-        });
-        this.refresh();
+        if(response.status === true){
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Procedimento excluido com sucesso!',
+          });
+          this.refresh();
+        } else {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Alerta',
+            detail: 'Procedimento em uso, não é possível excluí-lo!',
+          });
+        }
       },
       (error) => {
         console.error(error);
@@ -120,12 +134,23 @@ export class ProceduresComponent implements OnInit {
     );
   }
 
-  exportPdf() {
-    FormUtils.exportPdf('procedures', this.exportColumns, this.procedures);
-  }
-
   exportExcel() {
-    FormUtils.exportExcel('procedures', this.procedures);
+    this.loadExport = true;
+    this.procedureService.getProceduresExport(this.idClinic).subscribe(
+      (response) => {
+        FormUtils.exportExcel('procedures', response);
+        this.loadExport = false;
+      },
+      (error) => {
+        this.loadExport = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao buscar procedimentos',
+        });
+      }
+    );
+    
   }
 
 }

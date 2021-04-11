@@ -20,6 +20,10 @@ export class HealthInsuranceService {
   getHealthInsurancesAll(idClinic: string):Observable<any[]> {
     return this.httpClient.get<any[]>(`${API}/health-insurances/all?clinic_id=${idClinic}`).pipe(take(1));
   }
+
+  getHealthInsurancesExport(idClinic: string):Observable<any[]> {
+    return this.httpClient.get<any[]>(`${API}/health-insurances/export?clinic_id=${idClinic}`).pipe(take(1));
+  }
   
   getHealthInsuranceById(idClinic: string, idHealthInsurance: string):Observable<any> {
     return this.httpClient.get<any>(`${API}/health-insurances/${idHealthInsurance}?clinic_id=${idClinic}`).pipe(take(1));

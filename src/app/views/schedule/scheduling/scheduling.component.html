@@ -20,13 +20,13 @@
             <p-dropdown
               inputId="professional"
               placeholder="Selecionar..."
-              optionLabel="person.name"
+              optionLabel="name"
               [options]="professionals"
               [ngClass]="applyInputError('professional_id')"
               optionValue="id"
               formControlName="professional_id"
               [filter]="true"
-              filterBy="person.name"
+              filterBy="name"
               [virtualScroll]="true"
               [itemSize]="20"
               emptyFilterMessage="Não encontrado"
@@ -131,7 +131,7 @@
               inputId="health_insurance"
               placeholder="Selecionar..."
               optionLabel="name"
-              [options]="healthInsurances"
+              [options]="filteredHealthInsurances"
               optionValue="id"
               formControlName="health_insurance_id"
               [filter]="true"
@@ -151,7 +151,8 @@
           pButton
           type="submit"
           label="Salvar"
-          icon="pi pi-check"
+          [icon]="!load ? 'pi pi-check' : 'pi pi-spin pi-spinner'"
+          [disabled]="load"
           class="p-button-success mr-2"
         ></button>
         <button
@@ -159,6 +160,7 @@
           type="button"
           label="Cancelar"
           (click)="close()"
+          [disabled]="load"
           icon="pi pi-times"
           class="p-button-secondary"
         ></button>
@@ -170,27 +172,36 @@
           <button
             pButton
             type="button"
-            (click)="editScheduling()"
+            (click)="confirmScheduling()"
             label="Confirmado"
-            icon="pi pi-flag p-button-help"
+            icon="pi pi-flag"
+            [icon]="!loadConfirm ? 'pi pi-flag' : 'pi pi-spin pi-spinner'"
+            [disabled]="loadConfirm || loadCancel"
             class="p-button-outlined p-button-help p-button-sm mr-2"
+            *ngIf="form.get('scheduling_status').value === schedulingStatus.SCHEDULED"
           ></button>
           <button
             pButton
             type="button"
-            (click)="editScheduling()"
+            (click)="cancelScheduling()"
             label="Cancelado"
-            icon="pi pi-flag"
+            [icon]="!loadCancel ? 'pi pi-flag' : 'pi pi-spin pi-spinner'"
+            [disabled]="loadCancel || loadConfirm"
             class="p-button-outlined p-button-danger p-button-sm"
+            *ngIf="form.get('scheduling_status').value === schedulingStatus.SCHEDULED || form.get('scheduling_status').value === schedulingStatus.CONFIRMED"
           ></button>
         </ng-container>
+        <div class="float-right">
+          <i class="pi pi-spin pi-spinner ml-2" style="font-size: 1.8rem;" *ngIf="loadForm"></i>
+        </div>
       </div>
       <div class="col-12 col-md-6 m-0 text-right">
         <button
           pButton
           type="submit"
           label="Salvar"
-          icon="pi pi-check"
+          [icon]="!load ? 'pi pi-check' : 'pi pi-spin pi-spinner'"
+          [disabled]="load"
           class="p-button-success mr-2"
           *ngIf="stateModal === statesModal.EDIT"
         ></button>
@@ -199,15 +210,17 @@
           type="button"
           (click)="editScheduling()"
           label="Editar"
+          [disabled]="loadCancel || loadConfirm"
           icon="pi pi-pencil"
           class="p-button-outlined mr-2"
-          *ngIf="stateModal === statesModal.VIEW"
+          *ngIf="stateModal === statesModal.VIEW && form.get('scheduling_status').value !== schedulingStatus.CANCELED && form.get('scheduling_status').value !== schedulingStatus.FINISHED"
         ></button>
         <button
           pButton
           type="button"
           label="{{ stateModal === statesModal.VIEW ? 'Fechar' : 'Cancelar' }}"
           (click)="close()"
+          [disabled]="load || loadCancel || loadConfirm"
           icon="pi pi-times"
           class="p-button-secondary"
         ></button>

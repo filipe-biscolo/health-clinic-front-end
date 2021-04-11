@@ -20,6 +20,10 @@ export class ProcedureService {
   getProceduresAll(idClinic: string):Observable<any[]> {
     return this.httpClient.get<any[]>(`${API}/procedures/all?clinic_id=${idClinic}`).pipe(take(1));
   }
+
+  getProceduresExport(idClinic: string):Observable<any[]> {
+    return this.httpClient.get<any[]>(`${API}/procedures/export?clinic_id=${idClinic}`).pipe(take(1));
+  }
   
   getProcedureById(idClinic: string, idProcedure: string):Observable<any> {
     return this.httpClient.get<any>(`${API}/procedures/${idProcedure}?clinic_id=${idClinic}`).pipe(take(1));

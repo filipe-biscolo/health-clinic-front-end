@@ -15,7 +15,12 @@
           <div class="col-12 col-md-6 buttons"></div>
         </div>
       </ng-template>
-      <p-table class="table-schedule" [columns]="cols" [value]="schedule" [responsive]="true">
+      <p-table
+        class="table-schedule"
+        [columns]="cols"
+        [value]="schedule"
+        [responsive]="true"
+      >
         <ng-template pTemplate="caption">
           <div class="row">
             <div class="col-12 col-md-8 actions">
@@ -26,11 +31,11 @@
                     class="p-inputtext-sm"
                     inputId="professional"
                     placeholder="Selecionar..."
-                    optionLabel="person.name"
+                    optionLabel="name"
                     [options]="searchProfessionals"
                     optionValue="id"
                     [filter]="true"
-                    filterBy="person.name"
+                    filterBy="name"
                     [virtualScroll]="true"
                     [itemSize]="20"
                     [(ngModel)]="idProfessional"
@@ -41,28 +46,40 @@
                 <div class="col-12 col-md">
                   <label for="start">Início</label>
                   <input
-                      id="start"
-                      class="p-inputtext-sm"
-                      type="date"
-                      placeholder="Date"
-                      [max]="dateEnd"
-                      [(ngModel)]="dateStart"
-                      pInputText
-                    />
+                    id="start"
+                    class="p-inputtext-sm"
+                    type="date"
+                    placeholder="Date"
+                    [max]="dateEnd"
+                    [(ngModel)]="dateStart"
+                    pInputText
+                  />
                 </div>
                 <div class="col-12 col-md">
                   <label for="end">Fim</label>
                   <input
-                      id="end"
-                      class="p-inputtext-sm"
-                      type="date"
-                      placeholder="Date"
-                      [min]="dateStart"
-                      [(ngModel)]="dateEnd"
-                      pInputText
-                    />
+                    id="end"
+                    class="p-inputtext-sm"
+                    type="date"
+                    placeholder="Date"
+                    [min]="dateStart"
+                    [(ngModel)]="dateEnd"
+                    pInputText
+                  />
                 </div>
-                <div class="float-right mt-auto">
+                <div class="col-12 d-block d-md-none">
+                  <button
+                    type="button"
+                    pButton
+                    pRipple
+                    icon="pi pi-search"
+                    (click)="search()"
+                    class="p-button-secondary p-button-sm"
+                    pTooltip="Pesquisar"
+                    tooltipPosition="left"
+                  ></button>
+                </div>
+                <div class="float-right pt-1 mt-auto d-none d-md-block">
                   <button
                     type="button"
                     pButton
@@ -87,8 +104,17 @@
                 pTooltip="Atualizar agenda"
                 tooltipPosition="left"
               ></button>
-              <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()" class="p-button-danger p-button-sm p-mr-2"  pTooltip="Exportar dados para XLS" tooltipPosition="left"></button>
-              <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success p-button-sm p-mr-2"  pTooltip="Exportar dados para XLS" tooltipPosition="left"></button>
+              <button
+                type="button"
+                pButton
+                pRipple
+                [icon]="!loadExport ? 'pi pi-file-excel' : 'pi pi-spin pi-spinner'"
+                [disabled]="loadExport"
+                (click)="exportExcel()"
+                class="p-button-success p-button-sm p-mr-2"
+                pTooltip="Exportar dados para XLS"
+                tooltipPosition="left"
+              ></button>
               <button
                 type="button"
                 pButton
@@ -111,7 +137,7 @@
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-rowData let-columns="columns">
-          <tr>
+          <tr *ngIf="!load">
             <td *ngFor="let col of columns" [title]="rowData[col.field]">
               <span class="p-column-title">{{ col.header }}</span>
               <ng-container [ngSwitch]="col.field">
@@ -120,6 +146,14 @@
                 </ng-container>
                 <ng-container *ngSwitchCase="'date_hour'">
                   {{ rowData[col.field] | date: "dd/MM/yyyy, HH:mm" }}
+                  <small
+                    class="d-block"
+                    [ngStyle]="{ 'font-size': '11px', 'font-style': 'italic' }"
+                    ><strong title="Término">Térm:</strong>
+                    {{
+                      rowData["date_hour_end"] | date: "dd/MM/yyyy, HH:mm"
+                    }}</small
+                  >
                 </ng-container>
                 <ng-container *ngSwitchDefault>
                   {{ rowData[col.field] ? rowData[col.field] : "-" }}
@@ -135,6 +169,14 @@
                 type="button"
                 pTooltip="Atender"
                 tooltipPosition="left"
+                [disabled]="
+                  rowData['scheduling_status'] !== schedulingStatus.CONFIRMED
+                "
+                [ngStyle]="{
+                  color:
+                    rowData['scheduling_status'] !==
+                      schedulingStatus.CONFIRMED && '#E7E7E7'
+                }"
                 icon="pi pi-play"
                 class="p-button-rounded p-button-text p-button-success"
               ></button>
@@ -155,6 +197,14 @@
                 type="button"
                 pTooltip="Excluir"
                 tooltipPosition="left"
+                [disabled]="
+                  rowData['scheduling_status'] === schedulingStatus.FINISHED
+                "
+                [ngStyle]="{
+                  color:
+                    rowData['scheduling_status'] ===
+                      schedulingStatus.FINISHED && '#E7E7E7'
+                }"
                 icon="pi pi-trash"
                 class="p-button-rounded p-button-text p-button-danger"
               ></button>
@@ -162,6 +212,14 @@
           </tr>
         </ng-template>
         <ng-template pTemplate="summary">
+          <div class="row" *ngIf="load">
+            <div class="col-md-12 p-0 text-center">
+              <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+            </div>
+          </div>
+          <div class="row" *ngIf="!load && (!schedule || schedule.length <= 0)">
+            <div class="col-md-12 p-0 text-center">- Não há dados -</div>
+          </div>
           <p-paginator
             class="d-none d-md-block"
             [first]="first"

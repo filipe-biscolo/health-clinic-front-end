@@ -20,6 +20,10 @@ export class ScheduleService {
   getScheduleAll(idClinic: string):Observable<any[]> {
     return this.httpClient.get<any[]>(`${API}/schedule/all?clinic_id=${idClinic}`).pipe(take(1));
   }
+
+  getScheduleExport(idClinic: string, idProfessional: string, date_start, date_end):Observable<any> {
+    return this.httpClient.get<any>(`${API}/schedule/export?clinic_id=${idClinic}&professional_id=${idProfessional}&date_start=${date_start}&date_end=${date_end}`).pipe(take(1));
+  }
   
   getSchedulingById(idClinic: string, idScheduling: string):Observable<any> {
     return this.httpClient.get<any>(`${API}/schedule/${idScheduling}?clinic_id=${idClinic}`).pipe(take(1));

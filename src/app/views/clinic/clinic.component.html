@@ -11,7 +11,7 @@
           <ng-template pTemplate="header">
             <div class="row pt-2">
               <div class="col-md-6">
-                <h4>{{titlePage}}</h4>
+                <h4>{{titlePage}}<i class="pi pi-spin pi-spinner ml-2" style="font-size: 1.2rem;" *ngIf="loadForm"></i></h4>
               </div>
             </div>
           </ng-template>
@@ -197,7 +197,8 @@
                 pButton
                 type="submit"
                 label="Salvar"
-                icon="pi pi-check"
+                [icon]="!load ? 'pi pi-check' : 'pi pi-spin pi-spinner'"
+                [disabled]="load"
                 class="p-button-success mr-2"
               ></button>
               <button
@@ -205,6 +206,7 @@
                 type="button"
                 label="Cancelar"
                 (click)="cancel()"
+                [disabled]="load"
                 icon="pi pi-times"
                 class="p-button-secondary"
               ></button>

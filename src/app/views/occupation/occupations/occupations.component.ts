@@ -32,6 +32,9 @@ export class OccupationsComponent implements OnInit {
   rows = this.rowsPerPageOptions[0];
   first = 0;
 
+  load = false;
+  loadExport = false;
+
   constructor(
     private occupationService: OccupationService,
     private loginService: LoginService,
@@ -52,6 +55,7 @@ export class OccupationsComponent implements OnInit {
   }
 
   listOccupations(){
+    this.load = true;
     this.occupationService
     .getOccupations(this.idClinic, this.page, this.rows)
     .subscribe(
@@ -59,8 +63,10 @@ export class OccupationsComponent implements OnInit {
         this.occupations = response.occupations;
         this.occupations.map(oc => oc.permissions = Permissions[oc.permissions]);
         this.totalRecords = response.totalCount;
+        this.load = false;
       },
       (error) => {
+        this.load = false;
         this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar cargos'});
       }
     );
@@ -101,8 +107,16 @@ export class OccupationsComponent implements OnInit {
     .deleteOccupation(id)
     .subscribe(
       (response) => {
-        this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Cargo excluido com sucesso!'});
-        this.refresh();
+        if(response.status === true){
+          this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Cargo excluido com sucesso!'});
+          this.refresh();
+        } else {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Alerta',
+            detail: 'Cargo em uso, não é possível excluí-lo!',
+          });
+        }        
       },
       (error) => {
         this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao exluir cargo'});
@@ -110,11 +124,20 @@ export class OccupationsComponent implements OnInit {
     );
   }
 
-  exportPdf() {
-    FormUtils.exportPdf('occupations', this.exportColumns, this.occupations);
-  }
-
   exportExcel() {
-    FormUtils.exportExcel('occupations', this.occupations);
+    this.loadExport = true;
+    this.occupationService
+    .getOccupationsExport(this.idClinic)
+    .subscribe(
+      (response) => {
+        response.map(oc => oc.permissions = Permissions[oc.permissions]);
+        FormUtils.exportExcel('occupations', response);
+        this.loadExport = false;
+      },
+      (error) => {
+        this.loadExport = false;
+        this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao buscar cargos'});
+      }
+    );
   }
 }

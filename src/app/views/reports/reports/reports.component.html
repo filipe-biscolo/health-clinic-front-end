@@ -13,93 +13,158 @@
                         <h4 class="m-0">Relatórios</h4>
                     </div>
                 </div>
+                <div class="row filter">
+                    <div class="col-12 col-md-6 actions">
+                        <div class="p-fluid row">
+                          <div class="col-12 col-md">
+                            <label for="start">Início</label>
+                            <input
+                                id="start"
+                                class="p-inputtext-sm"
+                                type="date"
+                                placeholder="Date"
+                                [max]="dateEnd"
+                                [(ngModel)]="dateStart"
+                                pInputText
+                              />
+                          </div>
+                          <div class="col-12 col-md">
+                            <label for="end">Fim</label>
+                            <input
+                                id="end"
+                                class="p-inputtext-sm"
+                                type="date"
+                                placeholder="Date"
+                                [min]="dateStart"
+                                [(ngModel)]="dateEnd"
+                                pInputText
+                              />
+                          </div>
+                          <div class="col-12 d-block d-md-none">
+                            <button
+                              type="button"
+                              pButton
+                              pRipple
+                              icon="pi pi-search"
+                              (click)="searchReports()"
+                              class="p-button-secondary p-button-sm"
+                              pTooltip="Pesquisar"
+                              tooltipPosition="left"
+                            ></button>
+                          </div>
+                          <div class="float-right pt-1 mt-auto d-none d-md-block">
+                            <button
+                              type="button"
+                              pButton
+                              pRipple
+                              icon="pi pi-search"
+                              (click)="searchReports()"
+                              class="p-button-secondary p-button-sm"
+                              pTooltip="Pesquisar"
+                              tooltipPosition="left"
+                            ></button>
+                          </div>
+                        </div>
+                      </div>
+                </div>
             </ng-template>
-            <div class="row pb-4">
-                <div class="col-12 col-md-6">
-                    <h5 class="text-center">Procedimentos utilziados no último mês</h5>
+            <div class="row" *ngIf="noReports">
+                <div class="col-md-12 p-0 text-center" [ngStyle]="{'background-color': '#f7f7f7', 'border-radius':'4px'}">
+                    <h5 class="my-1">- Não há dados -</h5>
+                </div>
+            </div>
+            <div class="row pb-4" *ngIf="!noReports">
+                <div class="col-12 pb-5">
+                    <h5 class="text-center">Procedimentos utilizados no período</h5>
                     <div class="chart-responsive">
                         <ngx-charts-bar-vertical
                         [scheme]="colorScheme"
                         [results]="reportProcedures"
-                        [gradient]="gradient"
+                        [gradient]="false"
                         [xAxis]="showXAxis"
                         [yAxis]="showYAxis"
                         [legend]="showLegend"
                         [legendTitle]="''"
-                        [showXAxisLabel]="showXAxisLabel"
-                        [showYAxisLabel]="showYAxisLabel"
+                        [showXAxisLabel]="false"
+                        [showYAxisLabel]="false"
                         [xAxisLabel]="xAxisLabel"
                         [yAxisLabel]="yAxisLabel">
                         </ngx-charts-bar-vertical>
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <h5 class="text-center">Convênios utilizados no último mês</h5>
+                <div class="col-12 pb-5">
+                    <h5 class="text-center">Convênios utilizados no período</h5>
                     <div class="chart-responsive">
                         <ngx-charts-pie-chart
                         [scheme]="colorScheme"
-                        [results]="reportHI"
+                        [results]="reportHealthInsurances"
                         [gradient]="false"
                         [legend]="true"
                         [legendTitle]="''"
                         [labels]="true"
-                        [doughnut]="false"
-                        >
+                        [doughnut]="false">
+                        <ng-template #tooltipTemplate let-model="model">
+                            <span class="d-block">{{ model.name }}</span>
+                            <span><b>{{ model.value }}%</b></span>
+                        </ng-template>
                         </ngx-charts-pie-chart>
                     </div>
                 </div>
             </div>
-            <div class="row pt-5">
-                <div class="col-12 col-md-6">
-                    <h5 class="text-center">Atendimentos por profissional (30 dias)</h5>
+            <div class="row" *ngIf="!noReports">
+                <div class="col-12 pb-5">
+                    <h5 class="text-center">Atendimentos por profissional no período</h5>
                     <div class="chart-responsive">
                         <ngx-charts-bar-vertical
                         [scheme]="colorScheme"
-                        [results]="reportProcedures"
-                        [gradient]="gradient"
+                        [results]="reportProfessionals"
+                        [gradient]="false"
                         [xAxis]="showXAxis"
                         [yAxis]="showYAxis"
                         [legend]="showLegend"
                         [legendTitle]="''"
-                        [showXAxisLabel]="showXAxisLabel"
-                        [showYAxisLabel]="showYAxisLabel"
+                        [showXAxisLabel]="false"
+                        [showYAxisLabel]="false"
                         [xAxisLabel]="xAxisLabel"
                         [yAxisLabel]="yAxisLabel">
                         </ngx-charts-bar-vertical>
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <h5 class="text-center">Novos pacientes (últimos 3 meses)</h5>
+                <div class="col-12 pb-5">
+                    <h5 class="text-center">Novos pacientes no período</h5>
                     <div class="chart-responsive">
                         <ngx-charts-bar-vertical
                         [scheme]="colorScheme"
-                        [results]="reportProcedures"
-                        [gradient]="gradient"
+                        [results]="reportPatients"
+                        [gradient]="false"
                         [xAxis]="showXAxis"
                         [yAxis]="showYAxis"
                         [legend]="showLegend"
                         [legendTitle]="''"
-                        [showXAxisLabel]="showXAxisLabel"
-                        [showYAxisLabel]="showYAxisLabel"
+                        [showXAxisLabel]="false"
+                        [showYAxisLabel]="false"
                         [xAxisLabel]="xAxisLabel"
                         [yAxisLabel]="yAxisLabel">
                         </ngx-charts-bar-vertical>
                     </div>
                 </div>
             </div>
-            <div class="row mt-5">
-                <div class="col-12 col-md-6">
-                    <h5 class="text-center">Relação de atendimentos (Finalizados x Cancelados)</h5>
+            <div class="row" *ngIf="!noReports">
+                <div class="col-12 pb-5">
+                    <h5 class="text-center">Efetividade de agendamentos no período</h5>
                     <div class="chart-responsive">
                         <ngx-charts-pie-chart
                         [scheme]="colorScheme"
-                        [results]="reportHI"
+                        [results]="reportSchedulingStatus"
                         [gradient]="false"
                         [legend]="true"
                         [legendTitle]="''"
                         [labels]="true"
-                        [doughnut]="false"
-                        >
+                        [doughnut]="false">
+                        <ng-template #tooltipTemplate let-model="model">
+                            <span class="d-block">{{ model.name }}</span>
+                            <span><b>{{ model.value }}%</b></span>
+                        </ng-template>
                         </ngx-charts-pie-chart>
                     </div>
                 </div>

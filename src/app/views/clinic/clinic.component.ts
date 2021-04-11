@@ -26,6 +26,9 @@ export class ClinicComponent implements OnInit {
 
   phoneMask = '(00) 0000-00009';
 
+  load = false;
+  loadForm = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private clinicService: ClinicService,
@@ -54,14 +57,16 @@ export class ClinicComponent implements OnInit {
 
     this.idClinic = this.activatedRoute.snapshot.params.id as string;
     if (!!this.idClinic) {
+      this.loadForm = true;
       this.clinicService.getClinicById(this.idClinic).subscribe(
         (clinic) => {
           this.form.patchValue({
             ...clinic,
           });
+          this.loadForm = false;
         },
         (error) => {
-          console.log('Error', error);
+          this.loadForm = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar clínica'});
         }
       );
@@ -119,16 +124,18 @@ export class ClinicComponent implements OnInit {
       FormValidations.verifyValidationsForm(this.form);
       return;
     }
-    console.log('this.form.value', this.form)
+    
     const values = this.form.value;
-
+    this.load = true;
     this.clinicService.putClinic(values).subscribe(
       (response) => {
         this.clinicService.updateHeader();
         this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Clínica atualizada!' });
         this.router.navigate(['/']);
+        this.load = false;
       },
       (error) => {
+        this.load = false;
         this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao atualizar clínica'});
       }
     );

@@ -10,7 +10,7 @@
       <ng-template pTemplate="header">
         <div class="row">
           <div class="col-12 col-md-6 title my-auto">
-            <h4 class="m-0">Lista de convênios</h4>
+            <h4 class="m-0">Lista de atendimentos</h4>
           </div>
           <div class="col-12 col-md-6 buttons">
             <button
@@ -34,20 +34,10 @@
               pTooltip="Exportar dados para XLS"
               tooltipPosition="left"
             ></button>
-            <button
-              type="button"
-              pButton
-              pRipple
-              icon="pi pi-plus"
-              [routerLink]="['/health-insurances/new']"
-              class="btn-primary-hc p-button-sm"
-              pTooltip="Adicionar convênio"
-              tooltipPosition="left"
-            ></button>
           </div>
         </div>
       </ng-template>
-      <p-table [columns]="cols" [value]="healthInsurances" [responsive]="true">
+      <p-table [columns]="cols" [value]="attendances" [responsive]="true">
         <ng-template pTemplate="header" let-columns>
           <tr>
             <th *ngFor="let col of cols">
@@ -60,28 +50,30 @@
           <tr *ngIf="!load">
             <td *ngFor="let col of columns" [title]="rowData[col.field]">
               <span class="p-column-title">{{ col.header }}</span>
-              {{ rowData[col.field] }}
+              <ng-container [ngSwitch]="col.field">
+                <ng-container *ngSwitchCase="'date_hour'">
+                  {{ rowData[col.field] | date: "dd/MM/yyyy, HH:mm" }}
+                </ng-container>
+                <ng-container *ngSwitchCase="'date_hour_end_attendance'">
+                  {{ rowData[col.field] | date: "dd/MM/yyyy, HH:mm" }}
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  {{ rowData[col.field] ? rowData[col.field] : "-" }}
+                </ng-container>
+              </ng-container>
             </td>
             <td class="col-actions text-center">
+              <span *ngIf="!admin && permissions !== listPermissions.HP">-</span>
               <button
-                (click)="editHI(rowData['id'])"
+                *ngIf="admin || permissions === listPermissions.HP"
+                (click)="viewAttendance(rowData['id'])"
                 pButton
                 pRipple
                 type="button"
-                pTooltip="Editar"
+                pTooltip="Visualizar"
                 tooltipPosition="left"
-                icon="pi pi-pencil"
+                icon="pi pi-eye"
                 class="p-button-rounded p-button-text p-button-secondary"
-              ></button>
-              <button
-                (click)="confirmDelete(rowData['id'])"
-                pButton
-                pRipple
-                type="button"
-                pTooltip="Excluir"
-                tooltipPosition="left"
-                icon="pi pi-trash"
-                class="p-button-rounded p-button-text p-button-danger"
               ></button>
             </td>
           </tr>
@@ -94,7 +86,7 @@
           </div>
           <div
             class="row"
-            *ngIf="!load && (!healthInsurances || healthInsurances.length <= 0)"
+            *ngIf="!load && (!attendances || attendances.length <= 0)"
           >
             <div class="col-md-12 p-0 text-center">- Não há dados -</div>
           </div>

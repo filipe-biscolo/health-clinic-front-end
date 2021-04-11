@@ -20,6 +20,14 @@ export class ProfessionalService {
   getProfessionalsAll(idClinic: string):Observable<any[]> {
     return this.httpClient.get<any[]>(`${API}/professionals/all?clinic_id=${idClinic}`).pipe(take(1));
   }
+
+  getProfessionalsExport(idClinic: string):Observable<any[]> {
+    return this.httpClient.get<any[]>(`${API}/professionals/export?clinic_id=${idClinic}`).pipe(take(1));
+  }
+
+  getProfessionalsSchedule(idClinic: string):Observable<any[]> {
+    return this.httpClient.get<any[]>(`${API}/professionals/schedule?clinic_id=${idClinic}`).pipe(take(1));
+  }
   
   getProfessionalById(idClinic: string, idProfessional: string):Observable<any> {
     return this.httpClient.get<any>(`${API}/professionals/${idProfessional}?clinic_id=${idClinic}`).pipe(take(1));
@@ -41,8 +49,8 @@ export class ProfessionalService {
     return this.httpClient.get<any>(`${API}/professionals/${idProfessional}/hi?page=${page}&limit=${limit}`).pipe(take(1));
   }
 
-  postProfessionalHI(professional: any):Observable<any[]> {
-    return this.httpClient.post<any[]>(`${API}/professionals/hi`, professional).pipe(take(1));
+  postProfessionalHI(professional: any, health_insurance_id: string):Observable<any[]> {
+    return this.httpClient.post<any[]>(`${API}/professionals/hi?health_insurance_id=${health_insurance_id}`, professional).pipe(take(1));
   }
 
   deleteProfessionalHI(idHealthInsurance: string):Observable<any> {

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { LoginService } from 'src/app/shared/services/login.service';
 import { City, State } from 'src/app/shared/model/address';
 import { AddressService } from 'src/app/shared/services/address.service';
@@ -10,8 +10,9 @@ import { ProfessionalService } from '../../../shared/services/professional.servi
 
 import * as arrPerson from '../../../shared/arrays/person';
 import { FormValidations } from 'src/app/shared/functions/form-validations';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { OccupationService } from '../../../shared/services/occupation.service';
+import { Permissions } from './../../../shared/enums/permissions';
 
 @Component({
   selector: 'app-professional',
@@ -22,6 +23,7 @@ export class ProfessionalComponent implements OnInit {
   private idClinic = this.loginService.getIdClinic();
   public idProfessional = this.loginService.getIdProfessional();
   public admin = this.loginService.getAdmin();
+  public permissions = this.loginService.getPermissions();
   form: FormGroup;
   formUser: FormGroup;
   
@@ -32,6 +34,8 @@ export class ProfessionalComponent implements OnInit {
   arrCities: City[];
 
   titlePage = 'Novo profissional';
+
+  listPermissions = Permissions;
 
   sex = arrPerson.Sex;
   marital_status = arrPerson.MaritalStatus;
@@ -49,6 +53,13 @@ export class ProfessionalComponent implements OnInit {
   rows = this.rowsPerPageOptions[0];
   first = 0;
 
+  health_insurance_id = null;
+
+  load = false;
+  loadForm = false;
+  loadHI = false;
+
+  loadTableHi = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -60,7 +71,7 @@ export class ProfessionalComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService) { }
+  ) { }
 
     ngOnInit(): void {
       this.cols = [{ field: 'name', header: 'Nome' }];
@@ -94,8 +105,7 @@ export class ProfessionalComponent implements OnInit {
           state_id: [null],
           cep: [null]
         }),
-        health_insurances: [null],
-        health_insurance_id: [null]
+        health_insurances: [null]
       });
       this.form.get('person.birth_date').setValue('2000-01-01');
       this.form.get('user.email').disable();
@@ -109,11 +119,9 @@ export class ProfessionalComponent implements OnInit {
          validator: FormValidations.passwordMatchValidatorProfessional
       });
       
-  
       const id = this.activatedRoute.snapshot.params.id as string;
       if (!!id) {
-        // this.form.removeControl('user.password');
-        // this.form.removeControl('user.conf_password');
+        this.loadForm = true;
         this.professionalService.getProfessionalById(this.idClinic, id).subscribe(
           professional => {
             this.titlePage = 'Editar profissional';
@@ -122,8 +130,10 @@ export class ProfessionalComponent implements OnInit {
             this.form.patchValue({
               ...professional
             });
+            this.loadForm = false;
           },
           error => {
+            this.loadForm = false;
             this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar profissional'});
           }
         );
@@ -173,8 +183,6 @@ export class ProfessionalComponent implements OnInit {
       }
     
       onSubmit() {
-        console.log('this.form',this.form.value)
-
         if (!this.form.valid) {
           FormValidations.verifyValidationsForm(this.form);
           !this.form.get('id').value && FormValidations.verifyValidationsForm(this.formUser);
@@ -187,14 +195,16 @@ export class ProfessionalComponent implements OnInit {
         }        
     
         const values = this.form.value;
-    
+        this.load = true;
         if(values.id) {
           this.professionalService.putProfessional(values).subscribe(
             (response) => {
+              this.load = false;
               this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Profissional atualizado!' });
               this.router.navigate(['/professionals']);
             },
             (error) => {
+              this.load = false;
               this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao atualizar profissional'});
             }
           );
@@ -206,11 +216,17 @@ export class ProfessionalComponent implements OnInit {
           values.user.conf_password = this.formUser.get('conf_password').value;
           this.professionalService.postProfessional(values).subscribe(
             (response) => {
+              this.load = false;
               this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Profissional criado!' });
               this.router.navigate(['/professionals']);
             },
             (error) => {
-              this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao criar profissional'});
+              this.load = false;
+              if(error.status === 409) {
+                this.messageService.add({severity:'error', summary: 'Erro', detail: 'Já existe um usuário com esse e-mail!'});
+              } else {
+                this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao criar profissional'});
+              }
             }
           );
         }
@@ -257,58 +273,56 @@ export class ProfessionalComponent implements OnInit {
       }
 
       submitHI() {
-        console.log('this.form',this.form.value)
-
-        // this.setHealthInsurances();
-
-        // if (!this.form.valid) {
-        //   FormValidations.verifyValidationsForm(this.form);
-        //   !this.form.get('id').value && FormValidations.verifyValidationsForm(this.formUser);
-        //   return;
-        // }
-
-        // if (!this.formUser.valid && !this.form.get('id').value) {
-        //   FormValidations.verifyValidationsForm(this.formUser);
-        //   return;
-        // }        
-    
+        if(!this.health_insurance_id){
+          return;
+        }
+        
         const values = this.form.value;
-    
-        // if(values.id) {
-        //   this.professionalService.putProfessional(values).subscribe(
-        //     (response) => {
-        //       this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Profissional atualizado!' });
-        //       this.router.navigate(['/professionals']);
-        //     },
-        //     (error) => {
-        //       this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao atualizar profissional'});
-        //     }
-        //   );
-        // } else {
-        //   values.clinic_id = this.idClinic;
-        //   values.user.clinic_id = this.idClinic;
-        //   values.user.email = this.formUser.get('email').value;
-        //   values.user.password = this.formUser.get('password').value;
-        //   values.user.conf_password = this.formUser.get('conf_password').value;
-          this.professionalService.postProfessionalHI(values).subscribe(
+        this.loadHI = true;
+        if(this.form.get('id').value) {
+          this.professionalService.postProfessionalHI(values, this.health_insurance_id).subscribe(
             (response) => {
+              this.health_insurance_id = null;
+              this.loadHI = false;
               this.messageService.add({severity:'success', summary: 'Sucesso', detail: 'Convênio adicionado!' });
               this.refresh();
             },
             (error) => {
-              this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao adicionar convênio'});
+              this.loadHI = false;
+              if(error.status === 409) {
+                this.messageService.add({severity:'warn', summary: 'Alerta', detail: 'Convênio já cadastrado para esse profissional!'});
+              } else {
+                this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao adicionar convênio'});
+              }
             }
           );
-        // }
+        } else {
+          let array: any = this.form.get('health_insurances').value;
+          !array && (array = []);
+          const exist = array.find(ex => ex.health_insurance_id === this.health_insurance_id);
+          if(!exist){
+            this.loadHI = false;
+            let hi = this.healthInsurances.find(hi => hi.id === this.health_insurance_id);
+            array.push({health_insurance_id: this.health_insurance_id, name: hi.name});
+            this.form.get('health_insurances').setValue(array);
+            this.health_insurance_id = null;
+          } else {
+            this.loadHI = false;
+            this.messageService.add({severity:'warn', summary: 'Alerta', detail: 'Convênio já adicionado!'});
+          }
+        }
       }
 
       listProfessionalHIs(idProfessional){
+        this.loadTableHi = true;
         this.professionalService.getProfessionalHIs(idProfessional, this.page, this.rows).subscribe(
           response => {
+            this.loadTableHi = false;
             this.professionalHIs = response.professionalHIs;
             this.totalRecords = response.totalCount;
         },
         error => {
+          this.loadTableHi = false;
           this.messageService.add({severity:'error', summary: 'Erro', detail: 'Erro ao carregar convênios do profissional'});
         });
       }
@@ -324,20 +338,6 @@ export class ProfessionalComponent implements OnInit {
         this.first = 0;
         this.page = 0;
         this.listProfessionalHIs(this.form.get('id').value);
-      }
-    
-      confirmDelete(id: string) {
-        this.confirmationService.confirm({
-          message: 'Deseja realmente excluir o convênio do profissional?',
-          header: 'Excluir convênio do profissional',
-          icon: 'pi pi-exclamation-triangle',
-          acceptLabel: 'Sim',
-          rejectLabel: 'Não',
-          accept: () => {
-            this.deleteProfessionalHI(id);
-          },
-          reject: () => {},
-        });
       }
     
       deleteProfessionalHI(id: string) {
@@ -358,5 +358,12 @@ export class ProfessionalComponent implements OnInit {
             });
           }
         );
+      }
+
+      deleteTemporaryProfessionalHI(id: string) {
+        let array: any = this.form.get('health_insurances').value;
+        const hi = array.find(ex => ex.health_insurance_id === id);
+        const index = array.indexOf(hi);
+        array.splice(index, 1);
       }
 }

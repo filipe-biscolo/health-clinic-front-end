@@ -7,6 +7,7 @@ import { ProcedureService } from 'src/app/shared/services/procedure.service';
 import { ProfessionalService } from 'src/app/shared/services/professional.service';
 import { ScheduleService } from 'src/app/shared/services/schedule.service';
 import { Permissions } from './../../../shared/enums/permissions';
+import { SchedulingStatus } from '../../../shared/enums/scheduling';
 
 @Component({
   selector: 'app-schedule',
@@ -16,8 +17,8 @@ import { Permissions } from './../../../shared/enums/permissions';
 export class ScheduleComponent implements OnInit {
   public idClinic = this.loginService.getIdClinic();
   public headerIdProfessional = this.loginService.getIdProfessional();
-  public admin = this.loginService.getAdmin();
   public permissions = this.loginService.getPermissions();
+  public admin = this.loginService.getAdmin();
 
   schedule: any[];
   listPermissions = Permissions;
@@ -28,6 +29,8 @@ export class ScheduleComponent implements OnInit {
   searchProfessionals: any[] = [];
   professionals: any[];
   procedures: any[];
+
+  schedulingStatus = SchedulingStatus;
 
   visibleScheduling = false;
 
@@ -43,6 +46,9 @@ export class ScheduleComponent implements OnInit {
   rows = this.rowsPerPageOptions[0];
   first = 0;
 
+  load = false;
+  loadExport = false;
+
   constructor(
     private scheduleService: ScheduleService,
     private loginService: LoginService,
@@ -54,11 +60,9 @@ export class ScheduleComponent implements OnInit {
   ) {
     this.dateStart = this.dateNowHTML();
     this.dateEnd = this.dateNowHTML();
-    // console.log('Permissões', this.loginService.permissions);
   }
 
   ngOnInit(): void {
-    console.log('dateStart', this.dateStart)
     this.cols = [
       { field: 'date_hour', header: 'Data & Hora' },
       { field: 'patient_name', header: 'Paciente' },
@@ -80,11 +84,11 @@ export class ScheduleComponent implements OnInit {
   }
 
   getProfessionals() {
-    this.professionalService.getProfessionalsAll(this.idClinic).subscribe(
+    this.professionalService.getProfessionalsSchedule(this.idClinic).subscribe(
       (response) => {
         this.professionals = response;
         this.professionals.forEach(professional => this.searchProfessionals.push(professional));
-        this.searchProfessionals.unshift({id: '', person: {name: 'Todos'}});
+        this.searchProfessionals.unshift({id: '', name: 'Todos'});
 
         if(this.permissions === this.listPermissions.SE){
           this.idProfessional = this.searchProfessionals[0].id;
@@ -123,16 +127,17 @@ export class ScheduleComponent implements OnInit {
   }
 
   listSchedule() {
+    this.load = true;
     this.scheduleService
       .getSchedule(this.idClinic, this.page, this.rows, this.idProfessional, this.dateStart, this.dateEnd)
       .subscribe(
         (response) => {
-          console.log('response', response)
           this.schedule = response.schedule;
           this.totalRecords = response.totalCount;
+          this.load = false;
         },
         (error) => {
-          console.error(error);
+          this.load = false;
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
@@ -163,7 +168,6 @@ export class ScheduleComponent implements OnInit {
   }
 
   editScheduling(id: string) {
-    console.log('id', id);
     this.idScheduling = id;
     this.showScheduling();
   }
@@ -185,7 +189,6 @@ export class ScheduleComponent implements OnInit {
   deleteScheduling(id: string) {
     this.scheduleService.deleteScheduling(id).subscribe(
       (response) => {
-        console.log(response);
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
@@ -221,11 +224,25 @@ export class ScheduleComponent implements OnInit {
     this.router.navigate(['/attendances/new', idScheduling]);
   }
 
-  exportPdf() {
-    FormUtils.exportPdf('schedule', this.exportColumns, this.schedule);
-  }
-
   exportExcel() {
-    FormUtils.exportExcel('schedule', this.schedule);
+    this.loadExport = true;
+    this.scheduleService
+    .getScheduleExport(this.idClinic, this.idProfessional, this.dateStart, this.dateEnd)
+    .subscribe(
+      (response) => {
+        FormUtils.exportExcel('schedule', response);
+        this.loadExport = false;
+      },
+      (error) => {
+        this.loadExport = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao buscar agendamentos',
+        });
+      }
+    );
+
+    
   }
 }

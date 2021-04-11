@@ -103,7 +103,6 @@ export class FormComponent implements OnInit {
 
     this.signupService.verifyUserQueue(email, code).subscribe(
       response => {
-        console.log(response)
         this.verify = response;
         if(response.data?.state === 'userFound') {
           this.formClinic.get('id').setValue(response.data.clinic_id);
@@ -249,7 +248,6 @@ export class FormComponent implements OnInit {
     }
 
    const values = this.formClinic.value;
-    console.log(values)
     this.load = true;
     this.signupService.updateClinic(values).subscribe(
       response => {
